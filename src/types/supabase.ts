@@ -7,6 +7,8 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.1"
   }
@@ -14,49 +16,49 @@ export type Database = {
     Tables: {
       audit_logs: {
         Row: {
-          id: string
-          condominium_id: string
-          booking_id: string | null
-          user_id: string | null
-          unit_id: string | null
           action: Database["public"]["Enums"]["audit_action"]
-          license_plate: string | null
-          spot_name: string | null
-          gate_id: string | null
-          ip_address: string | null
-          user_agent: string | null
-          metadata: Json | null
+          booking_id: string | null
+          condominium_id: string
           created_at: string
+          gate_id: string | null
+          id: string
+          ip_address: string | null
+          license_plate: string | null
+          metadata: Json | null
+          spot_name: string | null
+          unit_id: string | null
+          user_agent: string | null
+          user_id: string | null
         }
         Insert: {
-          id?: string
-          condominium_id: string
-          booking_id?: string | null
-          user_id?: string | null
-          unit_id?: string | null
           action: Database["public"]["Enums"]["audit_action"]
-          license_plate?: string | null
-          spot_name?: string | null
-          gate_id?: string | null
-          ip_address?: string | null
-          user_agent?: string | null
-          metadata?: Json | null
+          booking_id?: string | null
+          condominium_id: string
           created_at?: string
+          gate_id?: string | null
+          id?: string
+          ip_address?: string | null
+          license_plate?: string | null
+          metadata?: Json | null
+          spot_name?: string | null
+          unit_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
         }
         Update: {
-          id?: string
-          condominium_id?: string
-          booking_id?: string | null
-          user_id?: string | null
-          unit_id?: string | null
           action?: Database["public"]["Enums"]["audit_action"]
-          license_plate?: string | null
-          spot_name?: string | null
-          gate_id?: string | null
-          ip_address?: string | null
-          user_agent?: string | null
-          metadata?: Json | null
+          booking_id?: string | null
+          condominium_id?: string
           created_at?: string
+          gate_id?: string | null
+          id?: string
+          ip_address?: string | null
+          license_plate?: string | null
+          metadata?: Json | null
+          spot_name?: string | null
+          unit_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -91,46 +93,46 @@ export type Database = {
       }
       bookings: {
         Row: {
-          id: string
-          spot_id: string | null
-          unit_id: string | null
-          user_id: string | null
           condominium_id: string
-          license_plate: string
-          start_time: string
-          end_time: string
-          status: Database["public"]["Enums"]["booking_status"]
-          report_reason: string | null
           created_at: string
+          end_time: string
+          id: string
+          license_plate: string
+          report_reason: string | null
+          spot_id: string | null
+          start_time: string
+          status: Database["public"]["Enums"]["booking_status"]
+          unit_id: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
-          id?: string
-          spot_id?: string | null
-          unit_id?: string | null
-          user_id?: string | null
           condominium_id: string
-          license_plate: string
-          start_time: string
-          end_time: string
-          status?: Database["public"]["Enums"]["booking_status"]
-          report_reason?: string | null
           created_at?: string
+          end_time: string
+          id?: string
+          license_plate: string
+          report_reason?: string | null
+          spot_id?: string | null
+          start_time: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          unit_id?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
-          id?: string
-          spot_id?: string | null
-          unit_id?: string | null
-          user_id?: string | null
           condominium_id?: string
-          license_plate?: string
-          start_time?: string
-          end_time?: string
-          status?: Database["public"]["Enums"]["booking_status"]
-          report_reason?: string | null
           created_at?: string
+          end_time?: string
+          id?: string
+          license_plate?: string
+          report_reason?: string | null
+          spot_id?: string | null
+          start_time?: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          unit_id?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -165,102 +167,116 @@ export type Database = {
       }
       condominiums: {
         Row: {
-          id: string
-          name: string
-          unique_code: string
           address: string | null
           contact_email: string | null
           contact_phone: string | null
-          max_parking_hours_per_week: number
-          cooldown_period_hours: number
-          max_booking_duration_hours: number
+          cooldown_period_hours: number | null
           created_at: string
+          id: string
+          max_booking_duration_hours: number | null
+          max_parking_hours_per_week: number | null
+          name: string
+          unique_code: string
           updated_at: string
         }
         Insert: {
-          id?: string
-          name: string
-          unique_code: string
           address?: string | null
           contact_email?: string | null
           contact_phone?: string | null
-          max_parking_hours_per_week?: number
-          cooldown_period_hours?: number
-          max_booking_duration_hours?: number
+          cooldown_period_hours?: number | null
           created_at?: string
+          id?: string
+          max_booking_duration_hours?: number | null
+          max_parking_hours_per_week?: number | null
+          name: string
+          unique_code: string
           updated_at?: string
         }
         Update: {
-          id?: string
-          name?: string
-          unique_code?: string
           address?: string | null
           contact_email?: string | null
           contact_phone?: string | null
-          max_parking_hours_per_week?: number
-          cooldown_period_hours?: number
-          max_booking_duration_hours?: number
+          cooldown_period_hours?: number | null
           created_at?: string
+          id?: string
+          max_booking_duration_hours?: number | null
+          max_parking_hours_per_week?: number | null
+          name?: string
+          unique_code?: string
           updated_at?: string
         }
         Relationships: []
       }
       config_rules: {
         Row: {
+          condominium_id: string
+          created_at: string
+          description: string | null
           id: string
           rule_name: string
           rule_value: string
-          description: string | null
-          created_at: string
           updated_at: string
         }
         Insert: {
+          condominium_id: string
+          created_at?: string
+          description?: string | null
           id?: string
           rule_name: string
           rule_value: string
-          description?: string | null
-          created_at?: string
           updated_at?: string
         }
         Update: {
+          condominium_id?: string
+          created_at?: string
+          description?: string | null
           id?: string
           rule_name?: string
           rule_value?: string
-          description?: string | null
-          created_at?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "config_rules_condominium_id_fkey"
+            columns: ["condominium_id"]
+            isOneToOne: false
+            referencedRelation: "condominiums"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       infractions: {
         Row: {
-          id: string
           booking_id: string | null
-          reporter_user_id: string | null
-          report_type: Database["public"]["Enums"]["infraction_report_type"]
-          description: string | null
-          status: Database["public"]["Enums"]["infraction_status"]
+          condominium_id: string
           created_at: string
+          description: string | null
+          id: string
+          report_type: Database["public"]["Enums"]["infraction_report_type"]
+          reporter_user_id: string | null
+          status: Database["public"]["Enums"]["infraction_status"]
           updated_at: string
         }
         Insert: {
-          id?: string
           booking_id?: string | null
-          reporter_user_id?: string | null
-          report_type: Database["public"]["Enums"]["infraction_report_type"]
-          description?: string | null
-          status?: Database["public"]["Enums"]["infraction_status"]
+          condominium_id: string
           created_at?: string
+          description?: string | null
+          id?: string
+          report_type: Database["public"]["Enums"]["infraction_report_type"]
+          reporter_user_id?: string | null
+          status?: Database["public"]["Enums"]["infraction_status"]
           updated_at?: string
         }
         Update: {
-          id?: string
           booking_id?: string | null
-          reporter_user_id?: string | null
-          report_type?: Database["public"]["Enums"]["infraction_report_type"]
-          description?: string | null
-          status?: Database["public"]["Enums"]["infraction_status"]
+          condominium_id?: string
           created_at?: string
+          description?: string | null
+          id?: string
+          report_type?: Database["public"]["Enums"]["infraction_report_type"]
+          reporter_user_id?: string | null
+          status?: Database["public"]["Enums"]["infraction_status"]
           updated_at?: string
         }
         Relationships: [
@@ -269,6 +285,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "infractions_condominium_id_fkey"
+            columns: ["condominium_id"]
+            isOneToOne: false
+            referencedRelation: "condominiums"
             referencedColumns: ["id"]
           },
           {
@@ -282,49 +305,49 @@ export type Database = {
       }
       pending_registrations: {
         Row: {
-          id: string
           condominium_id: string
+          created_at: string
           email: string
           full_name: string | null
+          id: string
+          notes: string | null
           phone: string | null
           requested_unit_name: string | null
-          user_type: Database["public"]["Enums"]["user_type"]
-          status: Database["public"]["Enums"]["registration_status"]
-          reviewed_by: string | null
           reviewed_at: string | null
-          notes: string | null
-          created_at: string
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["registration_status"]
           updated_at: string
+          user_type: Database["public"]["Enums"]["user_type"]
         }
         Insert: {
-          id?: string
           condominium_id: string
+          created_at?: string
           email: string
           full_name?: string | null
+          id?: string
+          notes?: string | null
           phone?: string | null
           requested_unit_name?: string | null
-          user_type?: Database["public"]["Enums"]["user_type"]
-          status?: Database["public"]["Enums"]["registration_status"]
-          reviewed_by?: string | null
           reviewed_at?: string | null
-          notes?: string | null
-          created_at?: string
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["registration_status"]
           updated_at?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
         }
         Update: {
-          id?: string
           condominium_id?: string
+          created_at?: string
           email?: string
           full_name?: string | null
+          id?: string
+          notes?: string | null
           phone?: string | null
           requested_unit_name?: string | null
-          user_type?: Database["public"]["Enums"]["user_type"]
-          status?: Database["public"]["Enums"]["registration_status"]
-          reviewed_by?: string | null
           reviewed_at?: string | null
-          notes?: string | null
-          created_at?: string
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["registration_status"]
           updated_at?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
         }
         Relationships: [
           {
@@ -338,27 +361,27 @@ export type Database = {
       }
       spots: {
         Row: {
-          id: string
-          name: string
-          location_description: string | null
           condominium_id: string
           created_at: string
+          id: string
+          location_description: string | null
+          name: string
           updated_at: string
         }
         Insert: {
-          id?: string
-          name: string
-          location_description?: string | null
           condominium_id: string
           created_at?: string
+          id?: string
+          location_description?: string | null
+          name: string
           updated_at?: string
         }
         Update: {
-          id?: string
-          name?: string
-          location_description?: string | null
           condominium_id?: string
           created_at?: string
+          id?: string
+          location_description?: string | null
+          name?: string
           updated_at?: string
         }
         Relationships: [
@@ -373,37 +396,37 @@ export type Database = {
       }
       units: {
         Row: {
-          id: string
-          name: string
-          status: Database["public"]["Enums"]["unit_status"]
-          weekly_quota_hours: number
-          current_week_usage_minutes: number
-          last_booking_end_time: string | null
           condominium_id: string
           created_at: string
+          current_week_usage_minutes: number
+          id: string
+          last_booking_end_time: string | null
+          name: string
+          status: Database["public"]["Enums"]["unit_status"]
           updated_at: string
+          weekly_quota_hours: number
         }
         Insert: {
-          id?: string
-          name: string
-          status?: Database["public"]["Enums"]["unit_status"]
-          weekly_quota_hours?: number
-          current_week_usage_minutes?: number
-          last_booking_end_time?: string | null
           condominium_id: string
           created_at?: string
+          current_week_usage_minutes?: number
+          id?: string
+          last_booking_end_time?: string | null
+          name: string
+          status?: Database["public"]["Enums"]["unit_status"]
           updated_at?: string
+          weekly_quota_hours?: number
         }
         Update: {
-          id?: string
-          name?: string
-          status?: Database["public"]["Enums"]["unit_status"]
-          weekly_quota_hours?: number
-          current_week_usage_minutes?: number
-          last_booking_end_time?: string | null
           condominium_id?: string
           created_at?: string
+          current_week_usage_minutes?: number
+          id?: string
+          last_booking_end_time?: string | null
+          name?: string
+          status?: Database["public"]["Enums"]["unit_status"]
           updated_at?: string
+          weekly_quota_hours?: number
         }
         Relationships: [
           {
@@ -417,52 +440,52 @@ export type Database = {
       }
       users: {
         Row: {
-          id: string
-          unit_id: string | null
-          email: string
-          role: Database["public"]["Enums"]["user_role"]
-          full_name: string | null
-          phone: string | null
-          user_type: Database["public"]["Enums"]["user_type"]
-          status: Database["public"]["Enums"]["user_status"]
           condominium_id: string
-          profile_completed: boolean
-          invited_by: string | null
-          invited_at: string | null
           created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          invited_at: string | null
+          invited_by: string | null
+          phone: string | null
+          profile_completed: boolean
+          role: Database["public"]["Enums"]["user_role"]
+          status: Database["public"]["Enums"]["user_status"]
+          unit_id: string | null
           updated_at: string
+          user_type: Database["public"]["Enums"]["user_type"]
         }
         Insert: {
-          id: string
-          unit_id?: string | null
-          email: string
-          role?: Database["public"]["Enums"]["user_role"]
-          full_name?: string | null
-          phone?: string | null
-          user_type?: Database["public"]["Enums"]["user_type"]
-          status?: Database["public"]["Enums"]["user_status"]
           condominium_id: string
-          profile_completed?: boolean
-          invited_by?: string | null
-          invited_at?: string | null
           created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          invited_at?: string | null
+          invited_by?: string | null
+          phone?: string | null
+          profile_completed?: boolean
+          role?: Database["public"]["Enums"]["user_role"]
+          status?: Database["public"]["Enums"]["user_status"]
+          unit_id?: string | null
           updated_at?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
         }
         Update: {
-          id?: string
-          unit_id?: string | null
-          email?: string
-          role?: Database["public"]["Enums"]["user_role"]
-          full_name?: string | null
-          phone?: string | null
-          user_type?: Database["public"]["Enums"]["user_type"]
-          status?: Database["public"]["Enums"]["user_status"]
           condominium_id?: string
-          profile_completed?: boolean
-          invited_by?: string | null
-          invited_at?: string | null
           created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          phone?: string | null
+          profile_completed?: boolean
+          role?: Database["public"]["Enums"]["user_role"]
+          status?: Database["public"]["Enums"]["user_status"]
+          unit_id?: string | null
           updated_at?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
         }
         Relationships: [
           {
@@ -470,13 +493,6 @@ export type Database = {
             columns: ["condominium_id"]
             isOneToOne: false
             referencedRelation: "condominiums"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "users_invited_by_fkey"
-            columns: ["invited_by"]
-            isOneToOne: false
-            referencedRelation: "users"
             referencedColumns: ["id"]
           },
           {
@@ -542,154 +558,38 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
-
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type PublicSchema = Database["public"]
 
 export type Tables<
-  DefaultSchemaTableNameOrOptions extends
-  | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-  | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-  ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-    DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-  : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  TableName extends keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+> = (PublicSchema["Tables"] & PublicSchema["Views"])[TableName] extends {
+  Row: infer R
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-    DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
-    }
   ? R
-  : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-    DefaultSchema["Views"])
-  ? (DefaultSchema["Tables"] &
-    DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-      Row: infer R
-    }
-  ? R
-  : never
   : never
 
 export type TablesInsert<
-  DefaultSchemaTableNameOrOptions extends
-  | keyof DefaultSchema["Tables"]
-  | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-  ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-  : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  TableName extends keyof PublicSchema["Tables"]
+> = PublicSchema["Tables"][TableName] extends {
+  Insert: infer I
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-    Insert: infer I
-  }
   ? I
-  : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-    Insert: infer I
-  }
-  ? I
-  : never
   : never
 
 export type TablesUpdate<
-  DefaultSchemaTableNameOrOptions extends
-  | keyof DefaultSchema["Tables"]
-  | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-  ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-  : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  TableName extends keyof PublicSchema["Tables"]
+> = PublicSchema["Tables"][TableName] extends {
+  Update: infer U
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-    Update: infer U
-  }
   ? U
-  : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-    Update: infer U
-  }
-  ? U
-  : never
   : never
 
 export type Enums<
-  DefaultSchemaEnumNameOrOptions extends
-  | keyof DefaultSchema["Enums"]
-  | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-  ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-  : never = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-  ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-  : never
+  EnumName extends keyof PublicSchema["Enums"]
+> = PublicSchema["Enums"][EnumName]
 
 export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-  | keyof DefaultSchema["CompositeTypes"]
-  | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-  ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-  : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-  ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-  : never
+  CompositeTypeName extends keyof PublicSchema["CompositeTypes"]
+> = PublicSchema["CompositeTypes"][CompositeTypeName]
 
-export const Constants = {
-  public: {
-    Enums: {
-      audit_action: [
-        "entry",
-        "exit",
-        "booking_created",
-        "booking_cancelled",
-        "booking_completed",
-        "check_in",
-        "check_out",
-        "denied",
-        "user_created",
-        "user_approved",
-        "user_suspended",
-      ],
-      booking_status: [
-        "confirmed",
-        "active",
-        "completed",
-        "cancelled",
-        "reported",
-        "liberated",
-      ],
-      infraction_report_type: ["exceeded_time", "ghost_booking"],
-      infraction_status: ["pending", "resolved", "false_positive"],
-      registration_status: ["pending", "approved", "rejected"],
-      unit_status: ["active", "delinquent"],
-      user_role: ["resident", "admin"],
-      user_status: ["pending", "active", "suspended"],
-      user_type: ["owner", "tenant"],
-    },
-  },
-} as const
+

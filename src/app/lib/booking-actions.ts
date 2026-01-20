@@ -13,10 +13,10 @@ export async function createBooking(formData: FormData) {
     return { success: false, message: 'Usuario no autenticado.' };
   }
 
-  // Fetch the user's profile to get unit_id and role
+  // Fetch the user's profile to get unit_id, role, and condominium_id
   const { data: userProfile, error: profileError } = await (supabase
     .from('users') as any)
-    .select('id, unit_id, role')
+    .select('id, unit_id, role, condominium_id')
     .eq('id', user.id)
     .single();
 
@@ -26,8 +26,10 @@ export async function createBooking(formData: FormData) {
   }
 
   const unitId = userProfile.unit_id;
-  if (!unitId) {
-    return { success: false, message: 'Usuario no asignado a una unidad.' };
+  const condominiumId = userProfile.condominium_id;
+
+  if (!unitId || !condominiumId) {
+    return { success: false, message: 'Usuario no tiene asignada una unidad o condominio.' };
   }
 
   const licensePlate = formData.get('license_plate') as string;
@@ -58,6 +60,7 @@ export async function createBooking(formData: FormData) {
     spot_id: spotId,
     unit_id: unitId,
     user_id: user.id,
+    condominium_id: condominiumId,
     license_plate: licensePlate,
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
@@ -193,6 +196,10 @@ export async function updateBooking(bookingId: string, formData: FormData) {
   const newEndTime = new Date(newEndTimeStr);
 
   // Validate new times with Fair Play rules
+  if (!booking.unit_id) {
+    return { success: false, message: 'Reserva sin unidad asignada.' };
+  }
+
   const validationResult = await ValidationService.validateNewBooking(
     booking.unit_id,
     newStartTime,

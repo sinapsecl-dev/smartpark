@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Noto_Sans } from "next/font/google"; // Import Inter and Noto_Sans
 import "./globals.css";
 import ConditionalLayout from "./ConditionalLayout";
@@ -14,12 +14,18 @@ const notoSans = Noto_Sans({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#0da2e7",
+  minimumScale: 1,
+  initialScale: 1,
+  width: "device-width",
+  viewportFit: "cover",
+};
+
 export const metadata: Metadata = {
   title: "SmartParking - Terrazas del Sol V", // Updated title
   description: "Autonomous parking management for condominiums.", // Updated description
   manifest: "/manifest.json", // Add manifest link
-  themeColor: "#0da2e7", // Add theme color for PWA
-  viewport: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover", // PWA viewport
 };
 
 export default function RootLayout({

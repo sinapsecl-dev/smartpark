@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ValidationService } from '../validation-service';
 import { createServerComponentClient } from '@/lib/supabase/server';
 import { createClientComponentClient } from '@/lib/supabase/client';
-import { WEEKLY_QUOTA_HOURS } from '../validation-service'; // Import the constant
+// import { WEEKLY_QUOTA_HOURS } from '../validation-service'; // Import the constant (Removed as it is now in the DB)
 
 // Mock Supabase client
 const mockSupabase = {
@@ -183,7 +183,7 @@ describe('ValidationService', () => {
       mockSupabase.limit.mockReturnThis();
       // Use mockImplementation to differentiate calls based on table name
       mockSupabase.single.mockImplementation(async () => {
-        const tableName = mockSupabase.from.mock.lastCall[0]; // Get the table name from the last .from() call
+        const tableName = (mockSupabase.from as any).mock.lastCall?.[0]; // Get the table name from the last .from() call
 
         if (tableName === 'units') {
           return {

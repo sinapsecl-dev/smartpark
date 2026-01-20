@@ -59,14 +59,20 @@ export class ValidationService {
    * Checks if the proposedStartTime respects the cooldown period since the last booking for the unit.
    * @param unitId The ID of the unit.
    * @param proposedStartTime The proposed start time of the new booking.
+   * @param excludeBookingId Optional booking ID to exclude from the check (useful for updates).
    * @returns True if cooldown is respected, false otherwise.
    */
-  static async checkCooldownPeriod(unitId: string, proposedStartTime: Date): Promise<boolean> {
+  static async checkCooldownPeriod(unitId: string, proposedStartTime: Date, excludeBookingId?: string): Promise<boolean> {
     const supabase = await createServerComponentClient(); // Initialize Supabase client
-    const { data: lastBooking, error } = await (supabase // Add 'as any' here
-      .from('bookings') as any)
+    let query = (supabase.from('bookings') as any)
       .select('end_time')
-      .eq('unit_id', unitId)
+      .eq('unit_id', unitId);
+
+    if (excludeBookingId) {
+      query = query.ne('id', excludeBookingId);
+    }
+
+    const { data: lastBooking, error } = await query
       .order('end_time', { ascending: false })
       .limit(1)
       .single();
@@ -112,16 +118,18 @@ export class ValidationService {
   }
 
   /**
-   * Orchestrates all validation checks for a new booking.
+   * Orchestrates all validation checks for a new or updated booking.
    * @param unitId The ID of the unit attempting to make the booking.
    * @param startTime The proposed start time of the booking.
    * @param endTime The proposed end time of the booking.
+   * @param excludeBookingId Optional booking ID to exclude from validation (for updates).
    * @returns True if all validations pass, false otherwise.
    */
   static async validateNewBooking(
     unitId: string,
     startTime: Date,
     endTime: Date,
+    excludeBookingId?: string
   ): Promise<{ success: boolean; message?: string }> {
     if (!ValidationService.validateBookingDuration(startTime, endTime)) {
       return { success: false, message: 'Booking duration is invalid (min 15m, max 4h, 15m intervals).' };
@@ -136,7 +144,7 @@ export class ValidationService {
       return { success: false, message: `Weekly quota of ${WEEKLY_QUOTA_HOURS} hours exceeded.` };
     }
 
-    if (!(await ValidationService.checkCooldownPeriod(unitId, startTime))) {
+    if (!(await ValidationService.checkCooldownPeriod(unitId, startTime, excludeBookingId))) {
       return { success: false, message: `Cooldown period of ${COOLDOWN_PERIOD_HOURS} hours not respected.` };
     }
 

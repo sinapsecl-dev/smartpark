@@ -111,7 +111,10 @@ export async function updateFairPlayRules(
         for (const rule of rulesToUpsert) {
             const { error } = await supabase
                 .from('config_rules')
-                .upsert(rule, { onConflict: 'rule_name' });
+                .upsert(
+                    { ...rule, condominium_id: userProfile.condominium_id },
+                    { onConflict: 'condominium_id, rule_name' }
+                );
 
             if (error) {
                 console.error(`Error upserting rule ${rule.rule_name}:`, error);

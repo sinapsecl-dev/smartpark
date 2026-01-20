@@ -12,16 +12,22 @@ export async function createInfractionReport(formData: FormData) {
     return { success: false, message: 'User not authenticated.' };
   }
 
-  // Fetch the user's profile to get unit_id and ensure they are a resident
+  // Fetch the user's profile to get role and condominium_id
   const { data: userProfile, error: profileError } = await (supabase
     .from('users') as any) // Cast to any here
-    .select('id, role')
+    .select('id, role, condominium_id')
     .eq('id', user.id)
     .single();
 
   if (profileError || !userProfile || userProfile.role !== 'resident') {
     console.error('Error fetching user profile or user is not a resident:', profileError);
     return { success: false, message: 'Only residents can report infractions.' };
+  }
+
+  const condominiumId = userProfile.condominium_id;
+
+  if (!condominiumId) {
+    return { success: false, message: 'Usuario no asignado a un condominio.' };
   }
 
   const bookingId = formData.get('booking_id') as string;
@@ -35,6 +41,7 @@ export async function createInfractionReport(formData: FormData) {
   const newInfraction: TablesInsert<'infractions'> = {
     booking_id: bookingId,
     reporter_user_id: user.id,
+    condominium_id: condominiumId,
     report_type: reportType,
     description: description || null,
     status: 'pending', // Default status for new reports

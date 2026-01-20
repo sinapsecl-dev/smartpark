@@ -61,7 +61,7 @@ export default async function AdminDashboardPage() {
       .limit(10),
 
     // System rules (config_rules table)
-    supabase.from('config_rules').select('*'),
+    supabase.from('config_rules').select('*').eq('condominium_id', condominiumId),
 
     // Zombie vehicles (over 24h) for this condominium
     supabase
