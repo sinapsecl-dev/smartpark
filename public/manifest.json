@@ -1,0 +1,22 @@
+{
+  "name": "SmartParking - Terrazas del Sol V",
+  "short_name": "SmartParking",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#0da2e7",
+  "background_color": "#0da2e7",
+  "display": "standalone",
+  "start_url": "/",
+  "lang": "es",
+  "orientation": "portrait"
+}

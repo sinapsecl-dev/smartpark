@@ -1,0 +1,169 @@
+<!-- 
+  SmartPark - Custom Email Invitation Template
+  
+  HOW TO USE THIS TEMPLATE:
+  1. Go to your Supabase Dashboard: https://supabase.com/dashboard/project/hnfcwjvzamyljziyhiwa/auth/templates
+  2. Click on "Invite user" template
+  3. Replace the existing HTML with this template
+  4. Update the Subject to: "Bienvenido a SmartPark - Completa tu registro"
+  5. Save changes
+  
+  Available variables:
+  - {{ .ConfirmationURL }} - The magic link URL
+  - {{ .Token }} - The confirmation token
+  - {{ .TokenHash }} - The token hash
+  - {{ .Email }} - User's email address
+  - {{ .RedirectTo }} - Redirect URL after confirmation
+  
+  PRIMARY COLOR: #0da2e7 (SmartPark brand color)
+-->
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a SmartPark</title>
+</head>
+
+<body
+    style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f0f9ff;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+        style="background-color: #f0f9ff;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                    style="max-width: 520px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 24px rgba(13, 162, 231, 0.12);">
+
+                    <!-- Header -->
+                    <tr>
+                        <td style="padding: 40px 40px 20px; text-align: center;">
+                            <!-- Logo using table for email compatibility -->
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
+                                <tr>
+                                    <td
+                                        style="width: 56px; height: 56px; background-color: #0da2e7; border-radius: 14px; text-align: center; vertical-align: middle;">
+                                        <span
+                                            style="color: #ffffff; font-size: 28px; font-weight: bold; font-family: Arial, sans-serif;">P</span>
+                                    </td>
+                                </tr>
+                            </table>
+                            <h1 style="margin: 20px 0 8px; font-size: 24px; font-weight: 800; color: #1f2937;">
+                                ¡Bienvenido a SmartPark!
+                            </h1>
+                            <p style="margin: 0; font-size: 16px; color: #6b7280;">
+                                Sistema de Estacionamientos Inteligentes
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding: 20px 40px;">
+                            <p style="margin: 0 0 20px; font-size: 16px; color: #374151; line-height: 1.6;">
+                                Has sido invitado a formar parte de la comunidad SmartPark. Con esta plataforma podrás:
+                            </p>
+
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0"
+                                style="margin: 0 0 24px;">
+                                <tr>
+                                    <td style="padding: 8px 0; color: #374151; font-size: 15px;">
+                                        <span style="color: #0da2e7; margin-right: 8px;">✓</span> Reservar
+                                        estacionamientos de visita
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #374151; font-size: 15px;">
+                                        <span style="color: #0da2e7; margin-right: 8px;">✓</span> Gestionar tus horas
+                                        disponibles
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: #374151; font-size: 15px;">
+                                        <span style="color: #0da2e7; margin-right: 8px;">✓</span> Acceso desde cualquier
+                                        dispositivo
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="margin: 0 0 24px; font-size: 16px; color: #374151; line-height: 1.6;">
+                                Para activar tu cuenta y completar tu registro, haz clic en el siguiente botón:
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- CTA Button -->
+                    <tr>
+                        <td style="padding: 0 40px 32px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 16px 40px; font-size: 16px; font-weight: 600; 
+                              color: #ffffff; background-color: #0da2e7; 
+                              border-radius: 12px; text-decoration: none;">
+                                            Activar mi Cuenta
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Link fallback -->
+                    <tr>
+                        <td style="padding: 0 40px 32px;">
+                            <p
+                                style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.5;">
+                                Si el botón no funciona, copia y pega este enlace en tu navegador:
+                            </p>
+                            <p
+                                style="margin: 8px 0 0; font-size: 11px; color: #0da2e7; text-align: center; word-break: break-all;">
+                                {{ .ConfirmationURL }}
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Divider -->
+                    <tr>
+                        <td style="padding: 0 40px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                <tr>
+                                    <td style="border-top: 1px solid #e5e7eb;"></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 24px 40px 32px; text-align: center;">
+                            <p style="margin: 0 0 8px; font-size: 13px; color: #9ca3af;">
+                                Este enlace expira en 24 horas.
+                            </p>
+                            <p style="margin: 0; font-size: 13px; color: #9ca3af;">
+                                Si no solicitaste esta invitación, puedes ignorar este correo.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+
+                <!-- Sub-footer -->
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                    style="max-width: 520px;">
+                    <tr>
+                        <td style="padding: 24px; text-align: center;">
+                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
+                                © 2024 SmartPark - Terrazas del Sol V
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

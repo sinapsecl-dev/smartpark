@@ -1,0 +1,62 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "SmartParking" [ref=e4]:
+        - /url: /
+      - generic [ref=e5]:
+        - link "Dashboard" [ref=e6]:
+          - /url: /dashboard
+        - button "Login" [ref=e8]
+  - generic [ref=e10]:
+    - generic [ref=e13]:
+      - generic [ref=e15]: local_parking
+      - generic [ref=e16]: SmartPark
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - heading "Welcome back" [level=2] [ref=e19]
+        - paragraph [ref=e20]: Please enter your details to sign in.
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - paragraph [ref=e23]: Email or Username
+          - generic [ref=e24]:
+            - textbox "Email or Username person" [ref=e25]:
+              - /placeholder: apartment101@condo.cl
+            - generic [ref=e26]: person
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - paragraph [ref=e29]: Password
+            - link "Forgot Password?" [ref=e30]:
+              - /url: "#"
+          - generic [ref=e31]:
+            - textbox "Password Forgot Password? visibility" [ref=e32]:
+              - /placeholder: ••••••••
+            - button "visibility" [ref=e33] [cursor=pointer]:
+              - generic [ref=e34]: visibility
+        - button "Log In" [ref=e35] [cursor=pointer]:
+          - generic [ref=e36]: Log In
+      - generic [ref=e41]: Or continue with
+      - button "Sign in with Google" [ref=e42] [cursor=pointer]:
+        - img [ref=e43]
+        - generic [ref=e48]: Sign in with Google
+      - button "auto_fix_high Sign in via Magic Link" [ref=e49] [cursor=pointer]:
+        - generic [ref=e50]: auto_fix_high
+        - generic [ref=e51]: Sign in via Magic Link
+      - generic [ref=e52]:
+        - paragraph [ref=e53]:
+          - text: Don't have an account?
+          - link "Sign up" [ref=e54]:
+            - /url: "#"
+        - generic [ref=e55]:
+          - link "Privacy Policy" [ref=e56]:
+            - /url: "#"
+          - generic [ref=e57]: •
+          - link "Terms of Service" [ref=e58]:
+            - /url: "#"
+        - paragraph [ref=e59]: SmartPark © 2026
+  - button "Open Next.js Dev Tools" [ref=e65] [cursor=pointer]:
+    - img [ref=e66]
+  - alert [ref=e71]
+```
