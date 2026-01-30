@@ -256,6 +256,7 @@ const ParkingGrid: React.FC<ParkingGridProps> = ({ userUnitId }) => {
                 spot={selectedSpot}
                 onClose={closeDialog}
                 existingBooking={editingBooking}
+                futureBookings={currentSpotFutureBookings}
               />
             </motion.div>
           )}

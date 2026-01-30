@@ -81,6 +81,10 @@ const SpotCard: React.FC<SpotCardProps> = ({
       statusText = 'Ocupado';
     }
   } else if (futureBookings.length > 0) {
+    // Get the earliest future reservation
+    const nextReservation = futureBookings[0];
+    const nextReservationStartTime = new Date(nextReservation.start_time);
+
     if (userFutureBooking) {
       // User's future booking (not yet started)
       status = 'mine';
@@ -99,7 +103,9 @@ const SpotCard: React.FC<SpotCardProps> = ({
       borderColorClass = 'border-amber-200 dark:border-amber-900/50';
       mainBgClass = 'bg-amber-50 dark:bg-amber-900/20';
       mainTextColorClass = 'text-amber-600 dark:text-amber-400';
-      statusText = 'Reservado';
+      // Show reservation start time
+      const timeStr = nextReservationStartTime.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+      statusText = `Reservado · ${timeStr}`;
     }
   }
 

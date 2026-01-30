@@ -1,15 +1,14 @@
 'use client';
 
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Tables } from '@/types/supabase';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createBooking, updateBooking } from '@/app/lib/booking-actions';
-import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
 import { Button } from '@/components/ui/button';
-import { Loader2, ChevronLeft, Clock, Car, CheckCircle2, Edit3 } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight, Clock, Car, CheckCircle2, Edit3, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // ============================================================
@@ -18,7 +17,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 /**
  * Quantizes a Date object to the nearest 15-minute interval (floored).
- * E.g., 09:52 -> 09:45
  */
 const getQuantizedTime = (date: Date): Date => {
   const result = new Date(date);
@@ -37,8 +35,6 @@ const formatTime = (date: Date): string => {
 
 /**
  * Generates an array of time slots in 15-minute intervals.
- * @param startFrom - The Date from which to start generating slots.
- * @param count - Number of slots to generate.
  */
 const generateTimeSlots = (startFrom: Date, count: number): Date[] => {
   const slots: Date[] = [];
@@ -54,8 +50,19 @@ const generateTimeSlots = (startFrom: Date, count: number): Date[] => {
 // ============================================================
 
 const MAX_BOOKING_DURATION_HOURS = 4;
-const MAX_BOOKING_DURATION_MINUTES = MAX_BOOKING_DURATION_HOURS * 60;
 const INTERVAL_MINUTES = 15;
+
+// Duration options in minutes
+const DURATION_OPTIONS = [
+  { label: '15 min', minutes: 15 },
+  { label: '30 min', minutes: 30 },
+  { label: '45 min', minutes: 45 },
+  { label: '1 hora', minutes: 60 },
+  { label: '1h 30m', minutes: 90 },
+  { label: '2 horas', minutes: 120 },
+  { label: '3 horas', minutes: 180 },
+  { label: '4 horas', minutes: 240 },
+];
 
 // ============================================================
 // SCHEMA
@@ -80,38 +87,128 @@ interface BookingFormProps {
   spot: Tables<'spots'>;
   onClose: () => void;
   existingBooking?: BookingWithUnit | null;
+  futureBookings?: BookingWithUnit[];
 }
 
 // ============================================================
 // SUB-COMPONENTS
 // ============================================================
 
-interface TimeSlotButtonProps {
-  time: Date;
-  isSelected: boolean;
-  onClick: () => void;
-  disabled?: boolean;
+interface TimeCarouselProps {
+  times: Date[];
+  selectedTime: Date;
+  onSelect: (time: Date) => void;
 }
 
-const TimeSlotButton: React.FC<TimeSlotButtonProps> = ({ time, isSelected, onClick, disabled }) => (
-  <motion.button
-    type="button"
-    whileHover={{ scale: disabled ? 1 : 1.03 }}
-    whileTap={{ scale: disabled ? 1 : 0.97 }}
-    onClick={onClick}
-    disabled={disabled}
-    className={clsx(
-      'py-2.5 px-3 rounded-lg text-sm font-medium transition-all duration-200',
-      'focus:outline-none focus:ring-2 focus:ring-primary/50',
-      isSelected
-        ? 'bg-primary text-white shadow-md'
-        : 'border border-[#d1dce2] dark:border-[#354855] text-[#49829c] dark:text-[#a0bfce] hover:bg-gray-50 dark:hover:bg-[#1e2a32]',
-      disabled && 'opacity-50 cursor-not-allowed'
-    )}
-  >
-    {formatTime(time)}
-  </motion.button>
-);
+const TimeCarousel: React.FC<TimeCarouselProps> = ({ times, selectedTime, onSelect }) => {
+  const selectedIndex = times.findIndex(t => t.getTime() === selectedTime.getTime());
+
+  // Show only 3 visible slots centered on selection
+  const visibleTimes = times.slice(
+    Math.max(0, selectedIndex - 1),
+    Math.min(times.length, selectedIndex + 2)
+  );
+
+  const scroll = (direction: 'left' | 'right') => {
+    const newIndex = direction === 'left'
+      ? Math.max(0, selectedIndex - 1)
+      : Math.min(times.length - 1, selectedIndex + 1);
+    onSelect(times[newIndex]);
+  };
+
+  return (
+    <div className="flex items-center gap-2 w-full">
+      <button
+        type="button"
+        onClick={() => scroll('left')}
+        disabled={selectedIndex <= 0}
+        className={clsx(
+          "flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all",
+          "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700",
+          selectedIndex <= 0 && "opacity-30 cursor-not-allowed"
+        )}
+      >
+        <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+      </button>
+
+      <div className="flex-1 flex justify-center gap-2 overflow-hidden">
+        {visibleTimes.map((time) => {
+          const isSelected = time.getTime() === selectedTime.getTime();
+          return (
+            <motion.button
+              key={time.toISOString()}
+              type="button"
+              onClick={() => onSelect(time)}
+              layout
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className={clsx(
+                "px-3 py-2.5 rounded-xl text-sm font-semibold transition-all flex-shrink-0",
+                isSelected
+                  ? "bg-primary text-white shadow-md scale-105"
+                  : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+              )}
+            >
+              {formatTime(time)}
+            </motion.button>
+          );
+        })}
+      </div>
+
+      <button
+        type="button"
+        onClick={() => scroll('right')}
+        disabled={selectedIndex >= times.length - 1}
+        className={clsx(
+          "flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all",
+          "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700",
+          selectedIndex >= times.length - 1 && "opacity-30 cursor-not-allowed"
+        )}
+      >
+        <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+      </button>
+    </div>
+  );
+};
+
+interface DurationPillsProps {
+  options: typeof DURATION_OPTIONS;
+  selectedDuration: number | null;
+  onSelect: (minutes: number) => void;
+  maxDuration?: number; // Max allowed duration in minutes
+}
+
+const DurationPills: React.FC<DurationPillsProps> = ({ options, selectedDuration, onSelect, maxDuration }) => {
+  return (
+    <div className="grid grid-cols-4 gap-2 sm:flex sm:flex-wrap sm:gap-2">
+      {options.map((opt) => {
+        const isDisabled = maxDuration !== undefined && opt.minutes > maxDuration;
+        const isSelected = selectedDuration === opt.minutes;
+
+        return (
+          <motion.button
+            key={opt.minutes}
+            type="button"
+            onClick={() => !isDisabled && onSelect(opt.minutes)}
+            disabled={isDisabled}
+            whileHover={{ scale: isDisabled ? 1 : 1.05 }}
+            whileTap={{ scale: isDisabled ? 1 : 0.95 }}
+            className={clsx(
+              "px-3 py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all",
+              isSelected
+                ? "bg-primary text-white shadow-md"
+                : isDisabled
+                  ? "bg-gray-100 dark:bg-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                  : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+            )}
+          >
+            {opt.label}
+          </motion.button>
+        );
+      })}
+    </div>
+  );
+};
 
 interface BookingSummaryProps {
   spotName: string;
@@ -181,13 +278,20 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({ spotName, licensePlate,
 
 type FormStep = 'details' | 'confirmation';
 
-const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBooking }) => {
-  const router = useRouter();
+const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBooking, futureBookings = [] }) => {
   const [currentStep, setCurrentStep] = useState<FormStep>('details');
   const isEditMode = !!existingBooking;
 
   // Get the current quantized time as the starting point
   const now = useMemo(() => getQuantizedTime(new Date()), []);
+
+  // Calculate max end time based on next reservation
+  const maxEndTime = useMemo(() => {
+    if (!futureBookings.length) return null;
+    // Find the earliest future booking that starts after now
+    const nextBooking = futureBookings.find(b => new Date(b.start_time) > now);
+    return nextBooking ? new Date(nextBooking.start_time) : null;
+  }, [futureBookings, now]);
 
   // For edit mode, use existing booking times as starting point
   const initialStartTime = useMemo(() => {
@@ -200,33 +304,39 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBookin
   // Generate start time options (from now to +4 hours in 15-min intervals)
   const startTimeOptions = useMemo(() => {
     const slotCount = (MAX_BOOKING_DURATION_HOURS * 60) / INTERVAL_MINUTES;
-    return generateTimeSlots(now, slotCount);
-  }, [now]);
+    let slots = generateTimeSlots(now, slotCount);
 
-  const [selectedStartTime, setSelectedStartTime] = useState<Date>(initialStartTime);
-  const [selectedEndTime, setSelectedEndTime] = useState<Date | null>(
-    existingBooking ? new Date(existingBooking.end_time) : null
+    // Filter out start times that would leave less than 15 min before next booking
+    if (maxEndTime) {
+      slots = slots.filter(time =>
+        (maxEndTime.getTime() - time.getTime()) >= 15 * 60 * 1000
+      );
+    }
+
+    return slots;
+  }, [now, maxEndTime]);
+
+  const [selectedStartTime, setSelectedStartTime] = useState<Date>(
+    startTimeOptions.includes(initialStartTime) ? initialStartTime : startTimeOptions[0]
+  );
+  const [selectedDuration, setSelectedDuration] = useState<number | null>(
+    existingBooking
+      ? (new Date(existingBooking.end_time).getTime() - new Date(existingBooking.start_time).getTime()) / (1000 * 60)
+      : null
   );
 
-  // Generate end time options based on selected start time
-  const endTimeOptions = useMemo(() => {
-    if (!selectedStartTime) return [];
+  // Calculate max available duration based on selected start time and next booking
+  const maxDuration = useMemo(() => {
+    if (!maxEndTime) return MAX_BOOKING_DURATION_HOURS * 60;
+    const available = (maxEndTime.getTime() - selectedStartTime.getTime()) / (1000 * 60);
+    return Math.min(available, MAX_BOOKING_DURATION_HOURS * 60);
+  }, [selectedStartTime, maxEndTime]);
 
-    const slots: Date[] = [];
-    const maxSlots = MAX_BOOKING_DURATION_MINUTES / INTERVAL_MINUTES;
-
-    for (let i = 1; i <= maxSlots; i++) {
-      const slotTime = new Date(selectedStartTime.getTime() + i * INTERVAL_MINUTES * 60 * 1000);
-      slots.push(slotTime);
-    }
-    return slots;
-  }, [selectedStartTime]);
-
-  // Calculate duration
-  const durationMinutes = useMemo(() => {
-    if (!selectedStartTime || !selectedEndTime) return 0;
-    return (selectedEndTime.getTime() - selectedStartTime.getTime()) / (1000 * 60);
-  }, [selectedStartTime, selectedEndTime]);
+  // Calculate end time based on start + duration
+  const selectedEndTime = useMemo(() => {
+    if (!selectedDuration) return null;
+    return new Date(selectedStartTime.getTime() + selectedDuration * 60 * 1000);
+  }, [selectedStartTime, selectedDuration]);
 
   const {
     register,
@@ -252,15 +362,21 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBookin
   const handleStartTimeChange = useCallback((time: Date) => {
     setSelectedStartTime(time);
     setValue('start_time', time.toISOString());
-    // Reset end time when start time changes
-    setSelectedEndTime(null);
-    setValue('end_time', '');
-  }, [setValue]);
+    // Reset duration if it would exceed max
+    if (selectedDuration && maxEndTime) {
+      const newMaxDuration = (maxEndTime.getTime() - time.getTime()) / (1000 * 60);
+      if (selectedDuration > newMaxDuration) {
+        setSelectedDuration(null);
+        setValue('end_time', '');
+      }
+    }
+  }, [setValue, selectedDuration, maxEndTime]);
 
-  const handleEndTimeChange = useCallback((time: Date) => {
-    setSelectedEndTime(time);
-    setValue('end_time', time.toISOString());
-  }, [setValue]);
+  const handleDurationChange = useCallback((minutes: number) => {
+    setSelectedDuration(minutes);
+    const endTime = new Date(selectedStartTime.getTime() + minutes * 60 * 1000);
+    setValue('end_time', endTime.toISOString());
+  }, [selectedStartTime, setValue]);
 
   // Validate and proceed to confirmation
   const handleProceedToConfirmation = async () => {
@@ -286,19 +402,16 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBookin
     let result;
 
     if (isEditMode && existingBooking) {
-      // Edit existing booking
       result = await updateBooking(existingBooking.id, formData);
     } else {
-      // Create new booking
       result = await createBooking(formData);
     }
 
     if (result.success) {
-      // Simply close the modal - Realtime subscription will update the grid automatically
       onClose();
     } else {
       setError('root.serverError', { type: 'manual', message: result.message });
-      setCurrentStep('details'); // Go back if there's an error
+      setCurrentStep('details');
     }
   };
 
@@ -334,79 +447,78 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBookin
             transition={{ duration: 0.25, ease: 'easeInOut' }}
             className="flex flex-col gap-6"
           >
-            {/* License Plate Input */}
-            <div className="flex flex-col gap-2">
-              <label htmlFor="license_plate" className="text-sm font-semibold text-[#0d171c] dark:text-white">
+            {/* License Plate Input - PROMINENT */}
+            <div className="flex flex-col gap-3">
+              <label htmlFor="license_plate" className="text-sm font-bold text-[#0d171c] dark:text-white flex items-center gap-2">
+                <Car className="w-5 h-5 text-primary" />
                 Patente del Vehículo
+                <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#49829c]">
-                  <Car className="w-5 h-5" />
-                </div>
                 <input
                   id="license_plate"
                   type="text"
                   {...register('license_plate')}
                   className={clsx(
-                    'w-full pl-10 pr-4 py-3 rounded-lg border bg-white dark:bg-[#101c22] text-[#0d171c] dark:text-white',
+                    'w-full px-4 py-4 rounded-xl border-2 bg-white dark:bg-[#101c22] text-[#0d171c] dark:text-white',
                     'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
-                    'uppercase font-mono tracking-wider text-lg transition-all',
-                    errors.license_plate ? 'border-red-500' : 'border-[#d1dce2] dark:border-[#354855]'
+                    'uppercase font-mono tracking-[0.3em] text-xl sm:text-2xl text-center transition-all',
+                    errors.license_plate
+                      ? 'border-red-500 bg-red-50 dark:bg-red-900/10'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-primary/50'
                   )}
                   placeholder="AB-CD-12"
                   maxLength={10}
+                  autoFocus
                 />
+                {!licensePlateWatch && (
+                  <p className="mt-2 text-xs text-center text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    Ingresa la patente antes de seleccionar horario
+                  </p>
+                )}
               </div>
               {errors.license_plate && (
-                <p className="text-sm text-red-500">{errors.license_plate.message}</p>
+                <p className="text-sm text-red-500 text-center">{errors.license_plate.message}</p>
               )}
             </div>
 
-            {/* Start Time Selection */}
+            {/* Start Time Selection - Carousel */}
             <div className="flex flex-col gap-3">
               <label className="text-sm font-semibold text-[#0d171c] dark:text-white flex items-center gap-2">
                 <Clock className="w-4 h-4 text-primary" />
-                Hora de Inicio
+                Comenzar a las
               </label>
-              <div className="grid grid-cols-4 gap-2 max-h-[120px] overflow-y-auto p-1">
-                {startTimeOptions.map((time, idx) => (
-                  <TimeSlotButton
-                    key={idx}
-                    time={time}
-                    isSelected={selectedStartTime?.getTime() === time.getTime()}
-                    onClick={() => handleStartTimeChange(time)}
-                  />
-                ))}
-              </div>
+              <TimeCarousel
+                times={startTimeOptions}
+                selectedTime={selectedStartTime}
+                onSelect={handleStartTimeChange}
+              />
             </div>
 
-            {/* End Time Selection */}
+            {/* Duration Selection - Pills */}
             <div className="flex flex-col gap-3">
-              <label className="text-sm font-semibold text-[#0d171c] dark:text-white flex items-center gap-2">
-                <Clock className="w-4 h-4 text-primary" />
-                Hora de Fin
-                {durationMinutes > 0 && (
-                  <span className="ml-auto bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium">
-                    {durationMinutes >= 60
-                      ? `${Math.floor(durationMinutes / 60)}h ${durationMinutes % 60 > 0 ? `${durationMinutes % 60}min` : ''}`
-                      : `${durationMinutes} min`}
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-semibold text-[#0d171c] dark:text-white flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-primary" />
+                  Reservar por
+                </label>
+                {selectedDuration && (
+                  <span className="bg-primary/10 text-primary px-2.5 py-1 rounded-full text-xs font-bold">
+                    hasta {selectedEndTime && formatTime(selectedEndTime)}
                   </span>
                 )}
-              </label>
-              <div className="grid grid-cols-4 gap-2 max-h-[120px] overflow-y-auto p-1">
-                {endTimeOptions.map((time, idx) => (
-                  <TimeSlotButton
-                    key={idx}
-                    time={time}
-                    isSelected={selectedEndTime?.getTime() === time.getTime()}
-                    onClick={() => handleEndTimeChange(time)}
-                  />
-                ))}
               </div>
-              {!selectedEndTime && endTimeOptions.length > 0 && (
-                <p className="text-xs text-[#49829c] dark:text-[#a0bfce] flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px]">info</span>
-                  Selecciona una hora de fin (máximo {MAX_BOOKING_DURATION_HOURS} horas)
+              <DurationPills
+                options={DURATION_OPTIONS}
+                selectedDuration={selectedDuration}
+                onSelect={handleDurationChange}
+                maxDuration={maxDuration}
+              />
+              {maxEndTime && maxDuration < MAX_BOOKING_DURATION_HOURS * 60 && (
+                <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-1">
+                  <AlertCircle className="w-3 h-3" />
+                  Máximo hasta {formatTime(maxEndTime)} (siguiente reserva)
                 </p>
               )}
             </div>
@@ -427,7 +539,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBookin
             <Button
               type="button"
               onClick={handleProceedToConfirmation}
-              disabled={!licensePlateWatch || !selectedEndTime}
+              disabled={!licensePlateWatch || !selectedDuration}
               className="w-full h-12 text-base font-bold"
             >
               Continuar

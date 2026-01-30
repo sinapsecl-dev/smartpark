@@ -132,20 +132,20 @@ export class ValidationService {
     excludeBookingId?: string
   ): Promise<{ success: boolean; message?: string }> {
     if (!ValidationService.validateBookingDuration(startTime, endTime)) {
-      return { success: false, message: 'Booking duration is invalid (min 15m, max 4h, 15m intervals).' };
+      return { success: false, message: 'Duración inválida (mín. 15min, máx. 4h, intervalos de 15min).' };
     }
 
     if (!(await ValidationService.checkDelinquencyStatus(unitId))) {
-      return { success: false, message: 'Unit is delinquent and cannot make bookings.' };
+      return { success: false, message: 'La unidad está en mora y no puede hacer reservas.' };
     }
 
     const proposedDurationMinutes = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
     if (!(await ValidationService.checkWeeklyQuota(unitId, proposedDurationMinutes))) {
-      return { success: false, message: `Weekly quota of ${WEEKLY_QUOTA_HOURS} hours exceeded.` };
+      return { success: false, message: `Cuota semanal de ${WEEKLY_QUOTA_HOURS} horas excedida.` };
     }
 
     if (!(await ValidationService.checkCooldownPeriod(unitId, startTime, excludeBookingId))) {
-      return { success: false, message: `Cooldown period of ${COOLDOWN_PERIOD_HOURS} hours not respected.` };
+      return { success: false, message: `Período de enfriamiento de ${COOLDOWN_PERIOD_HOURS} horas no respetado. Debes esperar antes de hacer otra reserva.` };
     }
 
     return { success: true };

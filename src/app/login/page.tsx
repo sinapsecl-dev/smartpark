@@ -236,13 +236,13 @@ function LoginPageContent() {
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary text-white shadow-lg">
               <span className="material-symbols-outlined text-3xl">local_parking</span>
             </div>
-            <span className="text-primary font-bold tracking-wider text-sm uppercase">SmartPark</span>
+            <span className="text-primary font-bold tracking-wider text-sm uppercase">SinaPark</span>
           </div>
         </div>
         <div className="p-8 pt-6">
           <div className="flex flex-col gap-1 mb-8 text-center">
-            <h2 className="text-gray-900 dark:text-white tracking-tight text-[28px] font-bold leading-tight">Welcome back</h2>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Please enter your details to sign in.</p>
+            <h2 className="text-gray-900 dark:text-white tracking-tight text-[28px] font-bold leading-tight">Bienvenido de nuevo</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Ingresa tus datos para iniciar sesión.</p>
           </div>
 
           {error && (
@@ -253,7 +253,7 @@ function LoginPageContent() {
 
           <form onSubmit={handleSubmit(handleEmailSignIn)} className="flex flex-col gap-5">
             <label className="flex flex-col gap-1.5">
-              <p className="text-gray-900 dark:text-gray-200 text-sm font-medium leading-normal">Email or Username</p>
+              <p className="text-gray-900 dark:text-gray-200 text-sm font-medium leading-normal">Correo electrónico</p>
               <div className="relative">
                 <input
                   className={cn(
@@ -272,9 +272,9 @@ function LoginPageContent() {
 
             <label className="flex flex-col gap-1.5">
               <div className="flex justify-between items-center">
-                <p className="text-gray-900 dark:text-gray-200 text-sm font-medium leading-normal">Password</p>
+                <p className="text-gray-900 dark:text-gray-200 text-sm font-medium leading-normal">Contraseña</p>
                 <Link className="text-primary hover:text-primary/80 text-xs font-semibold transition-colors" href="#">
-                  Forgot Password?
+                  ¿Olvidaste tu contraseña?
                 </Link>
               </div>
               <div className="flex w-full flex-1 items-stretch rounded-lg group">
@@ -293,7 +293,7 @@ function LoginPageContent() {
                   onClick={() => setPasswordVisible(!passwordVisible)}
                   variant="ghost"
                   size="icon"
-                  className="rounded-l-none border border-gray-200 dark:border-gray-600 border-l-0"
+                  className="rounded-l-none border border-gray-200 dark:border-gray-600 border-l-0 h-12 w-12 shrink-0 aspect-square"
                   disabled={loading}
                 >
                   <span className="material-symbols-outlined text-gray-400" data-size="24px">
@@ -310,7 +310,7 @@ function LoginPageContent() {
               disabled={loading}
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Log In
+              Iniciar Sesión
             </Button>
           </form>
 
@@ -319,7 +319,7 @@ function LoginPageContent() {
               <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-surface-light dark:bg-surface-dark px-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Or continue with</span>
+              <span className="bg-surface-light dark:bg-surface-dark px-3 text-xs font-medium text-gray-400 uppercase tracking-wider">O continuar con</span>
             </div>
           </div>
 
@@ -335,7 +335,7 @@ function LoginPageContent() {
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="h-6 w-6">
                 <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,8.065,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,19.033-8.136,19.033-19.979C43.967,21.104,43.784,20.597,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,8.065,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,2.83,0.56,5.509,1.556,8.01L12.03,28.267L6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,4.809C7.514,39.564,15.08,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,8.065,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,19.033-8.136,19.033-19.979C43.967,21.104,43.784,20.597,43.611,20.083z"></path>
               </svg>
-              Sign in with Google
+              Iniciar con Google
             </Button>
 
             <Button
@@ -347,23 +347,23 @@ function LoginPageContent() {
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               <span className="material-symbols-outlined text-[20px] text-primary">auto_fix_high</span>
-              Sign in via Magic Link
+              Ingresar con Magic Link
             </Button>
           </div>
 
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Don't have an account?{' '}
+              ¿No tienes cuenta?{' '}
               <Link className="font-semibold text-primary hover:text-sky-500 transition-colors" href="#">
-                Sign up
+                Regístrate
               </Link>
             </p>
             <div className="mt-6 flex justify-center gap-4 text-xs text-gray-400">
-              <Link className="hover:text-gray-600 dark:hover:text-gray-300" href="#">Privacy Policy</Link>
+              <Link className="hover:text-gray-600 dark:hover:text-gray-300" href="#">Privacidad</Link>
               <span>•</span>
-              <Link className="hover:text-gray-600 dark:hover:text-gray-300" href="#">Terms of Service</Link>
+              <Link className="hover:text-gray-600 dark:hover:text-gray-300" href="#">Términos</Link>
             </div>
-            <p className="mt-2 text-xs text-gray-300 dark:text-gray-600">SmartPark © {new Date().getFullYear()}</p>
+            <p className="mt-2 text-xs text-gray-300 dark:text-gray-600">SinaPark © {new Date().getFullYear()}</p>
           </div>
         </div>
       </div>

@@ -49,7 +49,7 @@ export default async function Navbar() {
             {/* Brand Text */}
             <div className="hidden sm:block">
               <h1 className="text-[#0d171c] dark:text-white text-lg sm:text-xl font-bold leading-tight tracking-tight">
-                SmartPark
+                SinaPark
               </h1>
               {isAdmin && (
                 <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">

@@ -71,6 +71,61 @@ const getTimeRemaining = (endTime: Date): { text: string; percentage: number; is
   return { text: `${minutes} min restantes`, percentage, isUrgent };
 };
 
+// Quantize time to 15 min intervals (floor)
+const getQuantizedTime = (date: Date): Date => {
+  const result = new Date(date);
+  const minutes = result.getMinutes();
+  const quantizedMinutes = Math.floor(minutes / 15) * 15;
+  result.setMinutes(quantizedMinutes, 0, 0);
+  return result;
+};
+
+// Calculate availability for new reservations
+const calculateAvailability = (
+  currentBooking: BookingWithUnit | null,
+  futureBookings: BookingWithUnit[]
+): { canReserve: boolean; availableMinutes: number; maxEndTime: Date | null; message: string } => {
+  const now = getQuantizedTime(new Date());
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+
+  let availableFrom = now;
+
+  // If there's a current booking, availability starts after it ends
+  if (currentBooking) {
+    const bookingEnd = new Date(currentBooking.end_time);
+    if (bookingEnd > now) {
+      availableFrom = getQuantizedTime(bookingEnd);
+      // Round up to next 15 min interval if not exact
+      if (bookingEnd.getTime() > availableFrom.getTime()) {
+        availableFrom = new Date(availableFrom.getTime() + 15 * 60 * 1000);
+      }
+    }
+  }
+
+  // Find the next booking after availableFrom
+  const nextBooking = futureBookings.find(b => new Date(b.start_time) > availableFrom);
+  const maxEndTime = nextBooking ? new Date(nextBooking.start_time) : endOfDay;
+
+  const availableMinutes = (maxEndTime.getTime() - availableFrom.getTime()) / (1000 * 60);
+
+  if (availableMinutes < 15) {
+    return {
+      canReserve: false,
+      availableMinutes: 0,
+      maxEndTime: null,
+      message: 'Completamente reservado por hoy'
+    };
+  }
+
+  return {
+    canReserve: true,
+    availableMinutes,
+    maxEndTime,
+    message: ''
+  };
+};
+
 // Info Row component
 const InfoRow: React.FC<{ icon: React.ReactNode; label: string; value: string; highlight?: boolean }> = ({
   icon, label, value, highlight
@@ -196,6 +251,12 @@ const SpotDetails: React.FC<SpotDetailsProps> = ({
   // Get user's future bookings for this spot
   const userFutureBookings = futureBookings.filter(b => b.unit_id === userUnitId);
   const otherFutureBookings = futureBookings.filter(b => b.unit_id !== userUnitId);
+
+  // Calculate availability for new reservations
+  const availability = useMemo(() =>
+    calculateAvailability(booking, futureBookings),
+    [booking, futureBookings]
+  );
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
@@ -425,8 +486,8 @@ const SpotDetails: React.FC<SpotDetailsProps> = ({
         </div>
       )}
 
-      {/* Report Issue Button (only for active bookings) */}
-      {booking && hasActiveBooking && (
+      {/* Report Issue Button (for any occupied/reserved spots) */}
+      {(booking || futureBookings.length > 0) && (
         <Button
           variant="outline"
           className="w-full h-11 gap-2 text-amber-600 border-amber-200 hover:bg-amber-50 dark:hover:bg-amber-900/20"
@@ -434,6 +495,24 @@ const SpotDetails: React.FC<SpotDetailsProps> = ({
           <AlertTriangle className="w-4 h-4" />
           Reportar Problema
         </Button>
+      )}
+
+      {/* Conditional New Reservation Button */}
+      {availability.canReserve ? (
+        <Button
+          onClick={onNewBooking}
+          className="w-full h-12 gap-2 text-base font-semibold"
+        >
+          <Calendar className="w-5 h-5" />
+          Nueva Reserva
+        </Button>
+      ) : (booking || futureBookings.length > 0) && (
+        <div className="text-center py-3 px-4 rounded-lg bg-gray-100 dark:bg-gray-800/50">
+          <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center justify-center gap-2">
+            <Clock className="w-4 h-4" />
+            {availability.message}
+          </p>
+        </div>
       )}
     </div>
   );
