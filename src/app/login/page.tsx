@@ -41,7 +41,13 @@ function LoginPageContent() {
       if (!hasHashToken && !hasQueryToken) {
         // Check for error in search params
         const errorParam = searchParams.get('error');
-        if (errorParam) {
+        if (errorParam === 'pending_approval') {
+          setError('Tu cuenta está pendiente de aprobación. El administrador revisará tu solicitud y te notificaremos por correo electrónico cuando sea aprobada.');
+        } else if (errorParam === 'suspended') {
+          setError('Tu cuenta ha sido suspendida. Contacta al administrador de tu condominio.');
+        } else if (errorParam === 'auth_failed') {
+          setError('Error de autenticación. Por favor intenta nuevamente.');
+        } else if (errorParam) {
           setError('Error de autenticación: ' + errorParam);
         }
         return;
@@ -95,11 +101,13 @@ function LoginPageContent() {
 
         if (session?.user) {
           // Check if user has completed their profile
-          const { data: userProfile } = await supabase
+          const { data: userProfileData } = await supabase
             .from('users')
             .select('profile_completed, role')
-            .eq('id', session.user.id)
+            .eq('id', session.user.id as any)
             .single();
+
+          const userProfile = userProfileData as any;
 
           // Clear the URL params/hash
           window.history.replaceState(null, '', window.location.pathname);
@@ -142,15 +150,48 @@ function LoginPageContent() {
     setLoading(true);
     setError(null);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
 
-      if (error) {
-        setError(error.message);
-      } else {
-        router.push('/dashboard');
+      if (authError) {
+        setError(authError.message);
+        return;
+      }
+
+      if (authData?.user) {
+        // Check user status in public.users
+        const { data: userProfileData } = await supabase
+          .from('users')
+          .select('status, profile_completed, role')
+          .eq('id', authData.user.id as any)
+          .single();
+
+        const userProfile = userProfileData as any;
+
+        // Block pending users
+        if (userProfile?.status === 'pending') {
+          await supabase.auth.signOut();
+          setError('Tu cuenta está pendiente de aprobación. El administrador revisará tu solicitud y te notificaremos por correo electrónico cuando sea aprobada.');
+          return;
+        }
+
+        // Block suspended users
+        if (userProfile?.status === 'suspended') {
+          await supabase.auth.signOut();
+          setError('Tu cuenta ha sido suspendida. Contacta al administrador de tu condominio.');
+          return;
+        }
+
+        // Redirect based on profile completion and role
+        if (!userProfile?.profile_completed) {
+          router.push('/complete-profile');
+        } else if (userProfile?.role === 'admin') {
+          router.push('/admin');
+        } else {
+          router.push('/dashboard');
+        }
         router.refresh();
       }
     } catch (err: any) {
@@ -273,7 +314,7 @@ function LoginPageContent() {
             <label className="flex flex-col gap-1.5">
               <div className="flex justify-between items-center">
                 <p className="text-gray-900 dark:text-gray-200 text-sm font-medium leading-normal">Contraseña</p>
-                <Link className="text-primary hover:text-primary/80 text-xs font-semibold transition-colors" href="#">
+                <Link className="text-primary hover:text-primary/80 text-xs font-semibold transition-colors" href="/forgot-password">
                   ¿Olvidaste tu contraseña?
                 </Link>
               </div>
@@ -300,6 +341,19 @@ function LoginPageContent() {
                     {passwordVisible ? 'visibility_off' : 'visibility'}
                   </span>
                 </Button>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    id="remember-me"
+                    name="remember-me"
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+                    Recordarme
+                  </label>
+                </div>
               </div>
               {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
             </label>
@@ -352,10 +406,10 @@ function LoginPageContent() {
           </div>
 
           <div className="mt-8 text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              ¿No tienes cuenta?{' '}
-              <Link className="font-semibold text-primary hover:text-sky-500 transition-colors" href="#">
-                Regístrate
+            <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
+              ¿No tienes una cuenta?{' '}
+              <Link href="/register" className="font-medium text-primary hover:text-primary/80 transition-colors">
+                Solicitar acceso
               </Link>
             </p>
             <div className="mt-6 flex justify-center gap-4 text-xs text-gray-400">

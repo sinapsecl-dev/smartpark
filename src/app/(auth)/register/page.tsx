@@ -10,11 +10,14 @@ export default async function RegisterPage() {
 
     if (user) {
         // Check if user profile is complete
-        const { data: profile } = await supabase
+        const { data: profileData } = await supabase
             .from('users')
             .select('profile_completed, role')
+            // @ts-ignore
             .eq('id', user.id)
             .single();
+
+        const profile = profileData as any;
 
         if (profile) {
             if (!profile.profile_completed) {

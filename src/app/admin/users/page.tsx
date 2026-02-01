@@ -22,27 +22,42 @@ export default async function UsersPage() {
         redirect('/dashboard');
     }
 
-    // Fetch all users in the condominium
+    // Fetch all ACTIVE/Regular users in the condominium (excluding self-registered pending)
     const { data: users, error: usersError } = await supabase
         .from('users')
         .select('*, units(name)')
         .eq('condominium_id', userProfile.condominium_id)
+        .in('status', ['active', 'suspended'])
         .order('created_at', { ascending: false });
 
     if (usersError) {
         console.error('Error fetching users:', usersError);
     }
 
-    // Fetch pending registrations
-    const { data: pendingRegistrations, error: pendingError } = await supabase
-        .from('pending_registrations')
+    // Fetch admin-invited pending users (pending users with invited_by NOT NULL)
+    const { data: invitedPending, error: invitedError } = await supabase
+        .from('users')
+        .select('*, units(name)')
+        .eq('condominium_id', userProfile.condominium_id)
+        .eq('status', 'pending')
+        .not('invited_by', 'is', null)
+        .order('created_at', { ascending: false });
+
+    if (invitedError) {
+        console.error('Error fetching invited pending users:', invitedError);
+    }
+
+    // Fetch SELF-REGISTERED pending users (pending users with invited_by IS NULL)
+    const { data: selfRegisteredPending, error: selfRegError } = await supabase
+        .from('users')
         .select('*')
         .eq('condominium_id', userProfile.condominium_id)
         .eq('status', 'pending')
+        .is('invited_by', null)
         .order('created_at', { ascending: false });
 
-    if (pendingError) {
-        console.error('Error fetching pending registrations:', pendingError);
+    if (selfRegError) {
+        console.error('Error fetching self-registered pending users:', selfRegError);
     }
 
     // Fetch available units for user creation
@@ -52,7 +67,7 @@ export default async function UsersPage() {
         .eq('condominium_id', userProfile.condominium_id)
         .order('name');
 
-    // Transform users data
+    // Transform active/suspended users
     const transformedUsers = (users || []).map((u: any) => ({
         id: u.id,
         email: u.email,
@@ -67,22 +82,35 @@ export default async function UsersPage() {
         createdAt: u.created_at,
     }));
 
-    // Transform pending registrations
-    const transformedPending = (pendingRegistrations || []).map((p: any) => ({
-        id: p.id,
-        email: p.email,
-        fullName: p.full_name,
-        phone: p.phone,
-        requestedUnitName: p.requested_unit_name,
-        userType: p.user_type,
-        status: p.status,
-        createdAt: p.created_at,
+    // Transform admin-invited pending users
+    const transformedInvitedPending = (invitedPending || []).map((u: any) => ({
+        id: u.id,
+        email: u.email,
+        fullName: u.full_name,
+        phone: u.phone,
+        role: u.role,
+        userType: u.user_type,
+        status: u.status,
+        unitId: u.unit_id,
+        unitName: u.units?.name || null,
+        profileCompleted: u.profile_completed,
+        createdAt: u.created_at,
+    }));
+
+    // Transform self-registered pending users (for Solicitudes tab)
+    const transformedSelfRegistered = (selfRegisteredPending || []).map((u: any) => ({
+        id: u.id,
+        email: u.email,
+        fullName: u.full_name,
+        phone: u.phone,
+        createdAt: u.created_at,
     }));
 
     return (
         <UsersPageClient
             initialUsers={transformedUsers}
-            pendingRegistrations={transformedPending}
+            pendingInvitedUsers={transformedInvitedPending}
+            selfRegisteredPending={transformedSelfRegistered}
             availableUnits={units || []}
             condominiumId={userProfile.condominium_id}
         />

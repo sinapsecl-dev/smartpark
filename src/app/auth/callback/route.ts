@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { Database } from '@/types/supabase';
@@ -20,27 +20,28 @@ export async function GET(request: Request) {
 
   if (code) {
     const cookieStore = await cookies();
-    const supabaseJwtSecret = process.env.SUPABASE_JWT_SECRET;
 
     const supabase = createServerClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       {
         cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
+          getAll() {
+            return cookieStore.getAll();
           },
-          set(name: string, value: string, options: CookieOptions) {
-            cookieStore.set({ name, value, ...options });
-          },
-          remove(name: string, options: CookieOptions) {
-            cookieStore.set({ name, value: '', ...options });
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) => {
+                cookieStore.set(name, value, options);
+              });
+            } catch {
+              // The `setAll` method was called from a Server Component.
+              // This can be ignored if you have middleware refreshing
+              // user sessions.
+            }
           },
         },
-        supabase: {
-          jwtSecret: supabaseJwtSecret,
-        },
-      } as any
+      }
     );
 
     try {
@@ -52,15 +53,35 @@ export async function GET(request: Request) {
       }
 
       if (session?.user) {
-        // Check if user has completed their profile
-        const { data: userProfile } = await supabase
+        // Check if user has a profile and their status
+        const { data: profileData } = await supabase
           .from('users')
-          .select('profile_completed, role')
-          .eq('id', session.user.id)
+          .select('profile_completed, role, condominium_id, status')
+          .eq('id', session.user.id as any)
           .single();
 
-        // If user doesn't have a profile or hasn't completed it, redirect to complete-profile
-        if (!userProfile || !userProfile.profile_completed) {
+        const userProfile = profileData as any;
+
+        // If user has no condominium linked, redirect to onboarding
+        if (!userProfile || !userProfile.condominium_id) {
+          return NextResponse.redirect(requestUrl.origin + '/onboarding');
+        }
+
+        // BLOCK PENDING USERS - they must wait for admin approval
+        if (userProfile.status === 'pending') {
+          // Sign them out and redirect to login with message
+          await supabase.auth.signOut();
+          return NextResponse.redirect(requestUrl.origin + '/login?error=pending_approval');
+        }
+
+        // If user is suspended, block access
+        if (userProfile.status === 'suspended') {
+          await supabase.auth.signOut();
+          return NextResponse.redirect(requestUrl.origin + '/login?error=suspended');
+        }
+
+        // If user hasn't completed their profile, redirect to complete-profile
+        if (!userProfile.profile_completed) {
           return NextResponse.redirect(requestUrl.origin + '/complete-profile');
         }
 

@@ -10,6 +10,7 @@ interface CompleteProfileData {
     userType: 'owner' | 'tenant';
     unitId: string;
     condominiumId: string;
+    password?: string;
 }
 
 export async function completeProfile(
@@ -21,6 +22,18 @@ export async function completeProfile(
         const { data: { user } } = await supabase.auth.getUser();
         if (!user || user.id !== data.userId) {
             return { success: false, error: 'No autorizado' };
+        }
+
+        // Set password if provided
+        if (data.password) {
+            const { error: passwordError } = await supabase.auth.updateUser({
+                password: data.password
+            });
+
+            if (passwordError) {
+                console.error('Error setting password:', passwordError);
+                return { success: false, error: 'Error al establecer la contraseña: ' + passwordError.message };
+            }
         }
 
         // Verify unit belongs to condominium
@@ -53,6 +66,7 @@ export async function completeProfile(
                     unit_id: data.unitId,
                     profile_completed: true,
                     status: 'active',
+                    auth_provider: data.password ? 'email' : undefined,
                     updated_at: new Date().toISOString(),
                 })
                 .eq('id', data.userId);
@@ -75,6 +89,7 @@ export async function completeProfile(
                     condominium_id: data.condominiumId,
                     role: 'resident',
                     status: 'active',
+                    auth_provider: data.password ? 'email' : 'google', // Default to google if no password (assumes OAuth)
                     profile_completed: true,
                 });
 

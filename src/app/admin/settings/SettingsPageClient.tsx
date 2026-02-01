@@ -252,7 +252,7 @@ export default function SettingsPageClient({ condominium, fairPlayRules }: Setti
     };
 
     return (
-        <main className="flex-1 flex flex-col w-full overflow-y-auto overscroll-y-contain">
+        <main className="flex-1 flex flex-col w-full">
             {/* Fixed Header for Mobile */}
             <div className="sticky top-0 z-10 bg-gray-50/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800 px-4 py-3 sm:px-6 sm:py-4">
                 <div className="max-w-3xl mx-auto flex items-center gap-3">

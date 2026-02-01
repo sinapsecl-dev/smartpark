@@ -523,6 +523,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      create_audit_log: {
+        Args: {
+          p_action_type: Database["public"]["Enums"]["audit_action"]
+          p_entity_type: string
+          p_entity_id: string
+          p_details: Json
+        }
+        Returns: void
+      }
     }
     Enums: {
       audit_action:
@@ -537,6 +546,8 @@ export type Database = {
       | "user_created"
       | "user_approved"
       | "user_suspended"
+      | "user_reactivated"
+      | "user_invited"
       booking_status:
       | "confirmed"
       | "active"

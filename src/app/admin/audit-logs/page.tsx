@@ -43,26 +43,39 @@ export default async function AuditLogsPage() {
         .limit(50);
 
     // Transform audit logs
-    const transformedLogs = (auditLogs || []).map((log: any) => ({
-        id: log.id,
-        action: log.action,
-        date: new Date(log.created_at).toLocaleDateString('es-CL', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        }),
-        time: new Date(log.created_at).toLocaleTimeString('es-CL', {
-            hour: '2-digit',
-            minute: '2-digit'
-        }),
-        timestamp: log.created_at,
-        licensePlate: log.license_plate,
-        spotName: log.spot_name,
-        unitName: log.units?.name || 'N/A',
-        userName: log.users?.full_name || log.users?.email || 'Sistema',
-        gateId: log.gate_id,
-        metadata: log.metadata,
-    }));
+    const transformedLogs = (auditLogs || []).map((log: any) => {
+        // For user actions, show the target user info from metadata if available
+        const isUserAction = ['user_suspended', 'user_reactivated', 'user_approved', 'user_created'].includes(log.action);
+        const targetUserName = log.metadata?.target_user_name;
+        const targetUserEmail = log.metadata?.target_user_email;
+        const targetUnitName = log.metadata?.target_unit_name;
+
+        return {
+            id: log.id,
+            action: log.action,
+            date: new Date(log.created_at).toLocaleDateString('es-CL', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            }),
+            time: new Date(log.created_at).toLocaleTimeString('es-CL', {
+                hour: '2-digit',
+                minute: '2-digit'
+            }),
+            timestamp: log.created_at,
+            licensePlate: log.license_plate,
+            spotName: log.spot_name,
+            // For user actions, prefer target user info from metadata
+            unitName: isUserAction && targetUnitName
+                ? targetUnitName
+                : (log.units?.name || 'N/A'),
+            userName: isUserAction && (targetUserName || targetUserEmail)
+                ? (targetUserName || targetUserEmail)
+                : (log.users?.full_name || log.users?.email || 'Sistema'),
+            gateId: log.gate_id,
+            metadata: log.metadata,
+        };
+    });
 
     // Transform bookings into audit-like entries
     const bookingLogs = (recentBookings || []).map((booking: any) => ({

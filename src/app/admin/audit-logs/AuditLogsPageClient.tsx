@@ -107,6 +107,12 @@ const ACTION_CONFIG: Record<string, { label: string; icon: React.ReactNode; bgCo
         bgColor: 'bg-orange-100 dark:bg-orange-900/30',
         textColor: 'text-orange-700 dark:text-orange-400'
     },
+    user_reactivated: {
+        label: 'Reactivado',
+        icon: <UserCheck className="w-4 h-4" />,
+        bgColor: 'bg-green-100 dark:bg-green-900/30',
+        textColor: 'text-green-700 dark:text-green-400'
+    },
 };
 
 const ITEMS_PER_PAGE = 20;
@@ -262,7 +268,7 @@ export default function AuditLogsPageClient({ initialLogs }: AuditLogsPageClient
     const hasActiveFilters = searchQuery !== '' || selectedAction !== 'all';
 
     return (
-        <main className="flex-1 flex flex-col w-full overflow-hidden">
+        <main className="flex-1 flex flex-col w-full">
             {/* Sticky Header */}
             <div className="sticky top-0 z-20 bg-gray-50/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800">
                 <div className="px-4 py-3 sm:px-6 sm:py-4">
@@ -370,7 +376,7 @@ export default function AuditLogsPageClient({ initialLogs }: AuditLogsPageClient
             </div>
 
             {/* Logs List */}
-            <div className="flex-1 overflow-y-auto overscroll-y-contain">
+            <div className="flex-1">
                 <div className="px-4 py-4 sm:px-6">
                     <div className="max-w-4xl mx-auto space-y-3">
                         {paginatedLogs.length === 0 ? (

@@ -11,10 +11,10 @@ export async function createServerComponentClient() {
     console.error('ERROR: SUPABASE_JWT_SECRET is not set in createServerComponentClient.');
   }
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      console.error('ERROR: NEXT_PUBLIC_SUPABASE_URL is not set in createServerComponentClient.');
+    console.error('ERROR: NEXT_PUBLIC_SUPABASE_URL is not set in createServerComponentClient.');
   }
   if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      console.error('ERROR: NEXT_PUBLIC_SUPABASE_ANON_KEY is not set in createServerComponentClient.');
+    console.error('ERROR: NEXT_PUBLIC_SUPABASE_ANON_KEY is not set in createServerComponentClient.');
   }
 
 
@@ -23,14 +23,22 @@ export async function createServerComponentClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
         },
       },
-      supabase: {
-        jwtSecret: supabaseJwtSecret || 'dummy-secret-for-debug',
-      }
-    } as any
+    }
   );
 
   return supabase;

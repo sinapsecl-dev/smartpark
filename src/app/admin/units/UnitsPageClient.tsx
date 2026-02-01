@@ -508,7 +508,7 @@ export default function UnitsPageClient({ initialUnits, condominiumId }: UnitsPa
     }, [deletingUnit, showToast]);
 
     return (
-        <main className="flex-1 flex flex-col w-full overflow-hidden">
+        <main className="flex-1 flex flex-col w-full">
             {/* Toast Messages */}
             <AnimatePresence>
                 {successMessage && (
@@ -584,7 +584,7 @@ export default function UnitsPageClient({ initialUnits, condominiumId }: UnitsPa
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto overscroll-y-contain">
+            <div className="flex-1">
                 <div className="px-4 py-4 sm:px-6">
                     <div className="max-w-4xl mx-auto space-y-3">
                         {filteredUnits.length === 0 ? (

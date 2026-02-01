@@ -2,14 +2,17 @@
 
 import React, { useState, useTransition } from 'react';
 import { motion } from 'framer-motion';
-import { Car, Mail, Building2, Loader2, ArrowRight, Check } from 'lucide-react';
+import { Car, Mail, Building2, Loader2, ArrowRight, Check, Lock, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { requestRegistration } from './actions';
 
 export default function RegisterPageClient() {
     const [isPending, startTransition] = useTransition();
     const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [condominiumCode, setCondominiumCode] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
 
@@ -17,13 +20,23 @@ export default function RegisterPageClient() {
         e.preventDefault();
         setError(null);
 
-        if (!email || !condominiumCode) {
+        if (!email || !condominiumCode || !password || !confirmPassword) {
             setError('Por favor completa todos los campos');
             return;
         }
 
+        if (password.length < 6) {
+            setError('La contraseña debe tener al menos 6 caracteres');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setError('Las contraseñas no coinciden');
+            return;
+        }
+
         startTransition(async () => {
-            const result = await requestRegistration(email, condominiumCode);
+            const result = await requestRegistration(email, password, condominiumCode);
             if (result.success) {
                 setSuccess(true);
             } else {
@@ -97,6 +110,46 @@ export default function RegisterPageClient() {
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="tu@email.com"
                                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Password Fields */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Contraseña
+                            </label>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    className="w-full pl-10 pr-12 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                >
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Confirmar Contraseña
+                            </label>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    className="w-full pl-10 pr-12 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                                 />
                             </div>
                         </div>

@@ -63,7 +63,7 @@ const AdminDashboardClient: React.FC<AdminDashboardClientProps> = ({
     };
 
     return (
-        <main className="flex-1 flex flex-col items-center w-full px-4 sm:px-6 lg:px-8 py-8 overflow-y-auto">
+        <main className="flex-1 flex flex-col items-center w-full px-4 sm:px-6 lg:px-8 py-8">
             <div className="w-full max-w-7xl flex flex-col gap-8">
                 {/* Encabezado de página */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
