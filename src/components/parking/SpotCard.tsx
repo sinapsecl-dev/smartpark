@@ -3,7 +3,7 @@
 import React from 'react';
 import { Tables } from '@/types/supabase';
 import clsx from 'clsx';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 const staggerItem = {
   hidden: { y: 20, opacity: 0 },
@@ -132,7 +132,7 @@ const SpotCard: React.FC<SpotCardProps> = ({
   const timeInfo = getTimeInfo();
 
   return (
-    <motion.div
+    <m.div
       variants={staggerItem}
       className={clsx(
         'group relative flex flex-col rounded-xl overflow-hidden shadow-sm',
@@ -211,7 +211,7 @@ const SpotCard: React.FC<SpotCardProps> = ({
           )}
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 };
 

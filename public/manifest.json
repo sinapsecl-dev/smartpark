@@ -1,22 +1,49 @@
 {
   "name": "SmartParking - Terrazas del Sol V",
   "short_name": "SmartParking",
+  "description": "Reserva y gestiona estacionamientos de visita en tu condominio",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F3F4F6",
+  "theme_color": "#0ea5e9",
+  "orientation": "portrait-primary",
+  "lang": "es",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "theme_color": "#0da2e7",
-  "background_color": "#0da2e7",
-  "display": "standalone",
-  "start_url": "/",
-  "lang": "es",
-  "orientation": "portrait"
+  "categories": [
+    "utilities",
+    "lifestyle"
+  ],
+  "shortcuts": [
+    {
+      "name": "Nueva Reserva",
+      "url": "/dashboard?action=new-booking",
+      "description": "Reservar estacionamiento rápido",
+      "icons": [
+        {
+          "src": "/favicon.ico",
+          "sizes": "48x48"
+        }
+      ]
+    }
+  ]
 }

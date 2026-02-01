@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Loader2, Check, RotateCcw, ChevronDown } from 'lucide-react';
 import clsx from 'clsx';
@@ -56,7 +56,7 @@ const RuleCard: React.FC<RuleCardProps> = ({
     options,
 }) => {
     return (
-        <motion.div
+        <m.div
             layout
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -71,14 +71,14 @@ const RuleCard: React.FC<RuleCardProps> = ({
             {/* Change indicator */}
             <AnimatePresence>
                 {hasChanged && (
-                    <motion.div
+                    <m.div
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0, opacity: 0 }}
                         className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center"
                     >
                         <span className="material-symbols-outlined text-white text-[14px]">edit</span>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
 
@@ -97,7 +97,7 @@ const RuleCard: React.FC<RuleCardProps> = ({
 
             {/* Value Display */}
             <div className="flex items-center justify-center mb-4">
-                <motion.div
+                <m.div
                     key={value}
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -105,7 +105,7 @@ const RuleCard: React.FC<RuleCardProps> = ({
                 >
                     <span className="text-4xl font-bold text-primary">{value}</span>
                     <span className="text-lg font-medium text-gray-400">{unit}</span>
-                </motion.div>
+                </m.div>
             </div>
 
             {/* Control */}
@@ -154,7 +154,7 @@ const RuleCard: React.FC<RuleCardProps> = ({
                     ))}
                 </div>
             )}
-        </motion.div>
+        </m.div>
     );
 };
 
@@ -195,7 +195,7 @@ const FairPlayRulesForm: React.FC<FairPlayRulesFormProps> = ({
     };
 
     return (
-        <motion.div
+        <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-[#1a2c35] dark:to-[#1e2a32] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden"
@@ -225,19 +225,19 @@ const FairPlayRulesForm: React.FC<FairPlayRulesFormProps> = ({
                             Sin guardar
                         </span>
                     )}
-                    <motion.div
+                    <m.div
                         animate={{ rotate: isExpanded ? 180 : 0 }}
                         transition={{ duration: 0.2 }}
                     >
                         <ChevronDown className="w-5 h-5 text-gray-400" />
-                    </motion.div>
+                    </m.div>
                 </div>
             </button>
 
             {/* Collapsible Content */}
             <AnimatePresence>
                 {isExpanded && (
-                    <motion.div
+                    <m.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
@@ -333,10 +333,10 @@ const FairPlayRulesForm: React.FC<FairPlayRulesFormProps> = ({
                                 </div>
                             </div>
                         </div>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
-        </motion.div>
+        </m.div>
     );
 };
 

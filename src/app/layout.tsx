@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Noto_Sans } from "next/font/google"; // Import Inter and Noto_Sans
+import { Inter, Noto_Sans } from "next/font/google";
 import "./globals.css";
 import ConditionalLayout from "./ConditionalLayout";
 import Navbar from "@/components/layout/Navbar";
+import { AppProviders } from "@/components/AppProviders";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -23,9 +24,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "SmartParking - Terrazas del Sol V", // Updated title
-  description: "Autonomous parking management for condominiums.", // Updated description
-  manifest: "/manifest.json", // Add manifest link
+  title: "SmartParking - Terrazas del Sol V",
+  description: "Autonomous parking management for condominiums.",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -62,7 +63,9 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${notoSans.variable} antialiased`}
       >
-        <ConditionalLayout navbar={<Navbar />}>{children}</ConditionalLayout>
+        <AppProviders>
+          <ConditionalLayout navbar={<Navbar />}>{children}</ConditionalLayout>
+        </AppProviders>
       </body>
     </html>
   );

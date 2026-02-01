@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Mail, Loader2, ArrowRight, AlertTriangle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { checkUserProvider, sendResetLink } from './actions';
@@ -55,7 +55,7 @@ export default function ForgotPasswordPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
-            <motion.div
+            <m.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full max-w-md"
@@ -191,7 +191,7 @@ export default function ForgotPasswordPage() {
                         </div>
                     )}
                 </div>
-            </motion.div>
+            </m.div>
         </div>
     );
 }

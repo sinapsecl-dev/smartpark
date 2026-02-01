@@ -9,7 +9,9 @@ import { createBooking, updateBooking } from '@/app/lib/booking-actions';
 import clsx from 'clsx';
 import { Button } from '@/components/ui/button';
 import { Loader2, ChevronLeft, ChevronRight, Clock, Car, CheckCircle2, Edit3, AlertCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
+import { triggerBookingConfetti } from '@/components/BookingConfetti';
+import { showXPToast } from '@/components/gamification/XPGainToast';
 
 // ============================================================
 // UTILITIES
@@ -135,7 +137,7 @@ const TimeCarousel: React.FC<TimeCarouselProps> = ({ times, selectedTime, onSele
         {visibleTimes.map((time) => {
           const isSelected = time.getTime() === selectedTime.getTime();
           return (
-            <motion.button
+            <m.button
               key={time.toISOString()}
               type="button"
               onClick={() => onSelect(time)}
@@ -150,7 +152,7 @@ const TimeCarousel: React.FC<TimeCarouselProps> = ({ times, selectedTime, onSele
               )}
             >
               {formatTime(time)}
-            </motion.button>
+            </m.button>
           );
         })}
       </div>
@@ -186,7 +188,7 @@ const DurationPills: React.FC<DurationPillsProps> = ({ options, selectedDuration
         const isSelected = selectedDuration === opt.minutes;
 
         return (
-          <motion.button
+          <m.button
             key={opt.minutes}
             type="button"
             onClick={() => !isDisabled && onSelect(opt.minutes)}
@@ -203,7 +205,7 @@ const DurationPills: React.FC<DurationPillsProps> = ({ options, selectedDuration
             )}
           >
             {opt.label}
-          </motion.button>
+          </m.button>
         );
       })}
     </div>
@@ -226,7 +228,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({ spotName, licensePlate,
     : `${minutes} min`;
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="bg-[#f0f9ff] dark:bg-primary/10 rounded-xl p-5 border border-primary/20 space-y-4"
@@ -268,7 +270,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({ spotName, licensePlate,
           <span className="font-bold text-primary text-lg">{durationString}</span>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 };
 
@@ -408,6 +410,17 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBookin
     }
 
     if (result.success) {
+      // Trigger celebration confetti and XP toast for new bookings
+      if (!isEditMode) {
+        triggerBookingConfetti();
+        // Show XP gain toast with feedback
+        const xpResult = result as { xpGained?: number; leveledUp?: boolean; newLevel?: number };
+        if (xpResult.xpGained) {
+          showXPToast(xpResult.xpGained, xpResult.leveledUp ?? false, xpResult.newLevel ?? 1);
+        }
+        // Emit custom event for gamification hook to listen
+        window.dispatchEvent(new CustomEvent('booking:created'));
+      }
       onClose();
     } else {
       setError('root.serverError', { type: 'manual', message: result.message });
@@ -437,7 +450,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBookin
     <form onSubmit={handleSubmit(onSubmit)} className="overflow-hidden">
       <AnimatePresence mode="wait" custom={direction}>
         {currentStep === 'details' && (
-          <motion.div
+          <m.div
             key="details"
             custom={direction}
             variants={slideVariants}
@@ -544,11 +557,11 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBookin
             >
               Continuar
             </Button>
-          </motion.div>
+          </m.div>
         )}
 
         {currentStep === 'confirmation' && (
-          <motion.div
+          <m.div
             key="confirmation"
             custom={direction}
             variants={slideVariants}
@@ -601,7 +614,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBookin
                 'Confirmar Reserva'
               )}
             </Button>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </form>

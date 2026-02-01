@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useTransition, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
     Building2,
     Plus,
@@ -74,7 +74,7 @@ const UnitCard = React.memo(({
     const [showActions, setShowActions] = useState(false);
 
     return (
-        <motion.div
+        <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-white dark:bg-[#1a2c35] rounded-xl p-4 border border-gray-100 dark:border-gray-700"
@@ -115,7 +115,7 @@ const UnitCard = React.memo(({
                                             className="fixed inset-0 z-10"
                                             onClick={() => setShowActions(false)}
                                         />
-                                        <motion.div
+                                        <m.div
                                             initial={{ opacity: 0, scale: 0.95 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             exit={{ opacity: 0, scale: 0.95 }}
@@ -139,7 +139,7 @@ const UnitCard = React.memo(({
                                                 <Trash2 className="w-4 h-4" />
                                                 Eliminar
                                             </button>
-                                        </motion.div>
+                                        </m.div>
                                     </>
                                 )}
                             </AnimatePresence>
@@ -158,7 +158,7 @@ const UnitCard = React.memo(({
                             </span>
                         </div>
                         <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                            <motion.div
+                            <m.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${usagePercent}%` }}
                                 className={`h-full rounded-full ${usagePercent > 80 ? 'bg-red-500' : usagePercent > 50 ? 'bg-amber-500' : 'bg-green-500'
@@ -178,7 +178,7 @@ const UnitCard = React.memo(({
                     )}
                 </div>
             </div>
-        </motion.div>
+        </m.div>
     );
 });
 UnitCard.displayName = 'UnitCard';
@@ -224,7 +224,7 @@ const UnitFormSheet = React.memo(({
             {isOpen && (
                 <>
                     {/* Backdrop */}
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -233,7 +233,7 @@ const UnitFormSheet = React.memo(({
                     />
 
                     {/* Sheet */}
-                    <motion.div
+                    <m.div
                         initial={{ y: '100%' }}
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
@@ -367,7 +367,7 @@ const UnitFormSheet = React.memo(({
                                 </button>
                             </div>
                         </div>
-                    </motion.div>
+                    </m.div>
                 </>
             )}
         </AnimatePresence>
@@ -394,14 +394,14 @@ const ConfirmDialog = React.memo(({
     <AnimatePresence>
         {isOpen && (
             <>
-                <motion.div
+                <m.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={onClose}
                     className="fixed inset-0 bg-black/50 z-50"
                 />
-                <motion.div
+                <m.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
@@ -428,7 +428,7 @@ const ConfirmDialog = React.memo(({
                             Eliminar
                         </button>
                     </div>
-                </motion.div>
+                </m.div>
             </>
         )}
     </AnimatePresence>
@@ -512,7 +512,7 @@ export default function UnitsPageClient({ initialUnits, condominiumId }: UnitsPa
             {/* Toast Messages */}
             <AnimatePresence>
                 {successMessage && (
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
@@ -522,10 +522,10 @@ export default function UnitsPageClient({ initialUnits, condominiumId }: UnitsPa
                             <Check className="w-5 h-5" />
                             <span className="font-medium">{successMessage}</span>
                         </div>
-                    </motion.div>
+                    </m.div>
                 )}
                 {errorMessage && (
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
@@ -535,7 +535,7 @@ export default function UnitsPageClient({ initialUnits, condominiumId }: UnitsPa
                             <X className="w-5 h-5" />
                             <span className="font-medium">{errorMessage}</span>
                         </div>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
 

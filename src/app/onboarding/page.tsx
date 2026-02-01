@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Building2, Loader2, ArrowRight, ShieldCheck } from 'lucide-react';
 import { linkCondominium } from './actions';
 import { useRouter } from 'next/navigation';
@@ -33,7 +33,7 @@ export default function OnboardingPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
-            <motion.div
+            <m.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full max-w-md"
@@ -77,13 +77,13 @@ export default function OnboardingPage() {
                         </div>
 
                         {error && (
-                            <motion.div
+                            <m.div
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
                             >
                                 <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-                            </motion.div>
+                            </m.div>
                         )}
 
                         <button
@@ -105,7 +105,7 @@ export default function OnboardingPage() {
                         </button>
                     </form>
                 </div>
-            </motion.div>
+            </m.div>
         </div>
     );
 }

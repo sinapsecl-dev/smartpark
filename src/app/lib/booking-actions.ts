@@ -4,6 +4,7 @@ import { createServerComponentClient } from '@/lib/supabase/server';
 import { ValidationService } from './validation-service';
 import { TablesInsert } from '@/types/supabase';
 import { revalidatePath } from 'next/cache';
+import { awardXP } from '@/app/actions/gamification';
 
 export async function createBooking(formData: FormData) {
   const supabase = await createServerComponentClient();
@@ -75,9 +76,18 @@ export async function createBooking(formData: FormData) {
     return { success: false, message: 'Error al crear reserva: ' + error.message };
   }
 
+  // Award XP for creating a booking
+  const xpResult = await awardXP(user.id, "BOOKING_CREATED");
+
   revalidatePath('/dashboard');
 
-  return { success: true, message: '¡Reserva creada exitosamente!' };
+  return {
+    success: true,
+    message: '¡Reserva creada exitosamente!',
+    xpGained: xpResult.xpGained,
+    leveledUp: xpResult.leveledUp,
+    newLevel: xpResult.newLevel,
+  };
 }
 
 /**

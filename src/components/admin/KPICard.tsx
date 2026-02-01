@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import clsx from 'clsx';
 
 interface KPICardProps {
@@ -48,7 +48,7 @@ const KPICard: React.FC<KPICardProps> = ({
     compact = false,
 }) => {
     return (
-        <motion.div
+        <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             whileHover={{ y: -2 }}
@@ -94,14 +94,14 @@ const KPICard: React.FC<KPICardProps> = ({
 
             {/* Value - Responsive sizing */}
             <div className="flex items-baseline gap-2 mt-auto relative z-10">
-                <motion.p
+                <m.p
                     key={String(value)}
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     className="text-[#0d171c] dark:text-white text-3xl sm:text-4xl font-bold leading-none"
                 >
                     {value}
-                </motion.p>
+                </m.p>
                 {subtitle && (
                     <p className="text-[#49829c] dark:text-gray-400 text-xs sm:text-sm font-medium">
                         {subtitle}
@@ -112,7 +112,7 @@ const KPICard: React.FC<KPICardProps> = ({
             {/* Progress bar - Thicker on mobile for visibility */}
             {progress !== undefined && (
                 <div className="w-full bg-gray-200 rounded-full h-2 sm:h-2.5 mt-3 sm:mt-4 dark:bg-gray-700 overflow-hidden">
-                    <motion.div
+                    <m.div
                         initial={{ width: 0 }}
                         animate={{ width: `${Math.min(progress, 100)}%` }}
                         transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -126,7 +126,7 @@ const KPICard: React.FC<KPICardProps> = ({
 
             {/* Action button - Larger touch target on mobile */}
             {actionButton && (
-                <motion.button
+                <m.button
                     whileTap={{ scale: 0.95 }}
                     onClick={actionButton.onClick}
                     className={clsx(
@@ -137,9 +137,9 @@ const KPICard: React.FC<KPICardProps> = ({
                     )}
                 >
                     {actionButton.label}
-                </motion.button>
+                </m.button>
             )}
-        </motion.div>
+        </m.div>
     );
 };
 

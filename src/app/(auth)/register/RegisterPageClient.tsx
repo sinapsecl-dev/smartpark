@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Car, Mail, Building2, Loader2, ArrowRight, Check, Lock, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { requestRegistration } from './actions';
@@ -48,7 +48,7 @@ export default function RegisterPageClient() {
     if (success) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
-                <motion.div
+                <m.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="w-full max-w-md bg-white dark:bg-[#1a2c35] rounded-2xl shadow-xl p-8 text-center"
@@ -70,14 +70,14 @@ export default function RegisterPageClient() {
                         Volver al inicio de sesión
                         <ArrowRight className="w-4 h-4" />
                     </Link>
-                </motion.div>
+                </m.div>
             </div>
         );
     }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
-            <motion.div
+            <m.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full max-w-md"
@@ -174,13 +174,13 @@ export default function RegisterPageClient() {
                         </div>
 
                         {error && (
-                            <motion.div
+                            <m.div
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
                             >
                                 <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-                            </motion.div>
+                            </m.div>
                         )}
 
                         <button
@@ -211,7 +211,7 @@ export default function RegisterPageClient() {
                         </p>
                     </div>
                 </div>
-            </motion.div>
+            </m.div>
         </div>
     );
 }

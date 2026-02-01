@@ -5,8 +5,8 @@ import { Enums } from '@/types/supabase';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronRight, LogOut } from 'lucide-react';
+import { m, AnimatePresence } from 'framer-motion';
+import { Menu, X, ChevronRight, LogOut, Trophy } from 'lucide-react';
 import { createClientComponentClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
@@ -33,6 +33,8 @@ const adminLinks: NavLink[] = [
 
 const residentLinks: NavLink[] = [
   { href: '/dashboard', label: 'Estacionamientos', icon: 'local_parking', description: 'Ver y reservar' },
+  { href: '/leaderboard', label: 'Clasificación', icon: 'leaderboard', description: 'Top usuarios y logros' },
+  { href: '/profile', label: 'Perfil', icon: 'person', description: 'Tu cuenta y avatar' },
 ];
 
 // Desktop Navigation Link
@@ -55,7 +57,7 @@ const DesktopNavLink: React.FC<{ link: NavLink; isActive: boolean }> = ({ link, 
     </span>
     {link.label}
     {isActive && (
-      <motion.div
+      <m.div
         layoutId="activeIndicator"
         className="absolute bottom-0 left-3 right-3 h-0.5 bg-primary rounded-full"
       />
@@ -70,7 +72,7 @@ const MobileMenuItem: React.FC<{
   onClick: () => void;
   index: number;
 }> = ({ link, isActive, onClick, index }) => (
-  <motion.div
+  <m.div
     initial={{ opacity: 0, x: -20 }}
     animate={{ opacity: 1, x: 0 }}
     transition={{ delay: index * 0.05 }}
@@ -110,7 +112,7 @@ const MobileMenuItem: React.FC<{
         isActive ? 'text-primary' : 'text-gray-300'
       )} />
     </Link>
-  </motion.div>
+  </m.div>
 );
 
 const NavLinks: React.FC<NavLinksProps> = ({ userRole, userHouseNumber, userEmail }) => {
@@ -172,7 +174,7 @@ const NavLinks: React.FC<NavLinksProps> = ({ userRole, userHouseNumber, userEmai
         aria-label="Toggle menu"
       >
         <AnimatePresence mode="wait">
-          <motion.div
+          <m.div
             key={isMenuOpen ? 'close' : 'menu'}
             initial={{ opacity: 0, rotate: -90 }}
             animate={{ opacity: 1, rotate: 0 }}
@@ -184,7 +186,7 @@ const NavLinks: React.FC<NavLinksProps> = ({ userRole, userHouseNumber, userEmai
             ) : (
               <Menu className="w-5 h-5 text-gray-600 dark:text-gray-300" />
             )}
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </button>
 
@@ -193,7 +195,7 @@ const NavLinks: React.FC<NavLinksProps> = ({ userRole, userHouseNumber, userEmai
         {isMenuOpen && (
           <>
             {/* Backdrop */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -203,7 +205,7 @@ const NavLinks: React.FC<NavLinksProps> = ({ userRole, userHouseNumber, userEmai
             />
 
             {/* Drawer */}
-            <motion.div
+            <m.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
@@ -261,7 +263,7 @@ const NavLinks: React.FC<NavLinksProps> = ({ userRole, userHouseNumber, userEmai
                   Cerrar Sesión
                 </button>
               </div>
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>

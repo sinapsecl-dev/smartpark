@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
     History,
     Search,
@@ -127,7 +127,7 @@ const LogCard = React.memo(({ log, index }: { log: AuditLog; index: number }) =>
     };
 
     return (
-        <motion.div
+        <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: Math.min(index * 0.03, 0.3) }}
@@ -174,7 +174,7 @@ const LogCard = React.memo(({ log, index }: { log: AuditLog; index: number }) =>
                     </div>
                 </div>
             </div>
-        </motion.div>
+        </m.div>
     );
 });
 LogCard.displayName = 'LogCard';
@@ -331,7 +331,7 @@ export default function AuditLogsPageClient({ initialLogs }: AuditLogsPageClient
                 {/* Filter Panel */}
                 <AnimatePresence>
                     {showFilters && (
-                        <motion.div
+                        <m.div
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
@@ -370,7 +370,7 @@ export default function AuditLogsPageClient({ initialLogs }: AuditLogsPageClient
                                     </div>
                                 </div>
                             </div>
-                        </motion.div>
+                        </m.div>
                     )}
                 </AnimatePresence>
             </div>

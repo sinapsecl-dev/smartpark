@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useTransition, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
     Users,
     UserPlus,
@@ -87,7 +87,7 @@ const ConfirmDialog = React.memo(({
         {isOpen && (
             <>
                 {/* Backdrop */}
-                <motion.div
+                <m.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -96,7 +96,7 @@ const ConfirmDialog = React.memo(({
                 />
 
                 {/* Dialog */}
-                <motion.div
+                <m.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
@@ -146,7 +146,7 @@ const ConfirmDialog = React.memo(({
                             {confirmText}
                         </button>
                     </div>
-                </motion.div>
+                </m.div>
             </>
         )}
     </AnimatePresence>
@@ -169,7 +169,7 @@ const UserCard = React.memo(({
     const isSuspended = user.status === 'suspended';
 
     return (
-        <motion.div
+        <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className={`bg-white dark:bg-[#1a2c35] rounded-xl p-4 border transition-all
@@ -258,7 +258,7 @@ const UserCard = React.memo(({
                     )}
                 </div>
             )}
-        </motion.div>
+        </m.div>
     );
 });
 UserCard.displayName = 'UserCard';
@@ -275,7 +275,7 @@ const SelfRegisteredCard = React.memo(({
     onReject: () => void;
     isPending: boolean;
 }) => (
-    <motion.div
+    <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white dark:bg-[#1a2c35] rounded-xl p-4 border border-amber-200 dark:border-amber-800/50"
@@ -324,7 +324,7 @@ const SelfRegisteredCard = React.memo(({
                 Rechazar
             </button>
         </div>
-    </motion.div>
+    </m.div>
 ));
 SelfRegisteredCard.displayName = 'SelfRegisteredCard';
 
@@ -363,7 +363,7 @@ const CreateUserSheet = React.memo(({
             {isOpen && (
                 <>
                     {/* Backdrop */}
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -372,7 +372,7 @@ const CreateUserSheet = React.memo(({
                     />
 
                     {/* Sheet */}
-                    <motion.div
+                    <m.div
                         initial={{ y: '100%' }}
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
@@ -508,7 +508,7 @@ const CreateUserSheet = React.memo(({
                                 </button>
                             </div>
                         </div>
-                    </motion.div>
+                    </m.div>
                 </>
             )}
         </AnimatePresence>
@@ -708,7 +708,7 @@ export default function UsersPageClient({
             {/* Toast Messages */}
             <AnimatePresence>
                 {successMessage && (
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
@@ -718,10 +718,10 @@ export default function UsersPageClient({
                             <Check className="w-5 h-5" />
                             <span className="font-medium">{successMessage}</span>
                         </div>
-                    </motion.div>
+                    </m.div>
                 )}
                 {errorMessage && (
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
@@ -731,7 +731,7 @@ export default function UsersPageClient({
                             <X className="w-5 h-5" />
                             <span className="font-medium">{errorMessage}</span>
                         </div>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
 

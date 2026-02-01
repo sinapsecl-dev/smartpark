@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 interface TopReserver {
     rank: number;
@@ -19,7 +19,7 @@ const TopReserversCard: React.FC<TopReserversCardProps> = ({
     title = 'Top Reservas (Este Mes)',
 }) => {
     return (
-        <motion.div
+        <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col rounded-xl bg-white dark:bg-[#1a2c35] p-6 shadow-sm border border-gray-100 dark:border-gray-700"
@@ -34,7 +34,7 @@ const TopReserversCard: React.FC<TopReserversCardProps> = ({
                     <p className="text-sm text-gray-500 text-center py-4">Sin reservas este mes</p>
                 ) : (
                     reservers.map((reserver, index) => (
-                        <motion.div
+                        <m.div
                             key={reserver.unitName}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -48,11 +48,11 @@ const TopReserversCard: React.FC<TopReserversCardProps> = ({
                             <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
                                 {reserver.reservationCount} {reserver.reservationCount === 1 ? 'reserva' : 'reservas'}
                             </span>
-                        </motion.div>
+                        </m.div>
                     ))
                 )}
             </div>
-        </motion.div>
+        </m.div>
     );
 };
 

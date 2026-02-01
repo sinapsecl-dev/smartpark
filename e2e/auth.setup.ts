@@ -34,7 +34,7 @@ async function globalSetup() {
   console.log('--- End Dashboard Page Content ---');
 
   // Verify that the user is successfully logged in and on the dashboard
-  await expect(page.locator('h1:text("Resident Parking Dashboard")')).toBeVisible(); // Use h2 instead of h1 as per current dashboard structure
+  await expect(page.locator('h1:text("Estacionamiento de Visitas")')).toBeVisible({ timeout: 10000 });
   console.log(`Successfully logged in as ${TEST_USER_EMAIL} and navigated to dashboard.`);
 
   // Save the authenticated state for reuse in other tests

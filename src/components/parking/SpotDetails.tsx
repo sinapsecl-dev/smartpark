@@ -5,7 +5,7 @@ import { Tables } from '@/types/supabase';
 import { deleteBooking } from '@/app/lib/booking-actions';
 import clsx from 'clsx';
 import { Button } from '@/components/ui/button';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import {
   Clock, Car, Home, Calendar, Trash2, Edit3, AlertTriangle,
   CheckCircle2, Timer, ChevronRight, X, Loader2
@@ -155,7 +155,7 @@ const FutureBookingItem: React.FC<{
   const endTime = new Date(booking.end_time);
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       className={clsx(
@@ -204,7 +204,7 @@ const FutureBookingItem: React.FC<{
           </button>
         </div>
       )}
-    </motion.div>
+    </m.div>
   );
 };
 
@@ -263,14 +263,14 @@ const SpotDetails: React.FC<SpotDetailsProps> = ({
       {/* Delete Confirmation Dialog */}
       <AnimatePresence>
         {showDeleteConfirm && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
             onClick={() => setShowDeleteConfirm(null)}
           >
-            <motion.div
+            <m.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
@@ -311,8 +311,8 @@ const SpotDetails: React.FC<SpotDetailsProps> = ({
                   {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Cancelar Reserva'}
                 </Button>
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
 
@@ -360,7 +360,7 @@ const SpotDetails: React.FC<SpotDetailsProps> = ({
                 </span>
               </div>
               <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                <motion.div
+                <m.div
                   initial={{ width: 0 }}
                   animate={{ width: `${timeRemaining.percentage}%` }}
                   transition={{ duration: 0.8, ease: 'easeOut' }}

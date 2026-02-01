@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { User, Phone, Home, ChevronRight, Check, Loader2, Car, Lock, Eye, EyeOff } from 'lucide-react';
 import { completeProfile } from './actions';
 import { useRouter } from 'next/navigation';
@@ -95,7 +95,7 @@ export default function CompleteProfileClient({
 
     return (
         <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-            <motion.div
+            <m.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full max-w-md"
@@ -310,7 +310,7 @@ export default function CompleteProfileClient({
                         </button>
                     </form>
                 </div>
-            </motion.div>
+            </m.div>
         </main>
     );
 }

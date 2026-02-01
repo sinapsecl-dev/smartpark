@@ -7,7 +7,7 @@ import { getSupabaseClient } from '@/lib/supabase/client';
 import { Tables } from '@/types/supabase';
 import { SpotCardSkeleton } from './SpotCardSkeleton';
 import { ResponsiveDialog } from '@/components/shared/ResponsiveDialog';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import SpotDetails from './SpotDetails';
 import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
@@ -191,7 +191,7 @@ const ParkingGrid: React.FC<ParkingGridProps> = ({ userUnitId }) => {
           {Array.from({ length: 12 }).map((_, i) => <SpotCardSkeleton key={i} />)}
         </div>
       ) : (
-        <motion.div
+        <m.div
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"
           variants={staggerContainer}
           initial="hidden"
@@ -199,7 +199,7 @@ const ParkingGrid: React.FC<ParkingGridProps> = ({ userUnitId }) => {
         >
           <AnimatePresence mode="popLayout">
             {spotStates.map(({ spot, currentBooking, futureBookings }) => (
-              <motion.div
+              <m.div
                 key={spot.id}
                 layout
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -214,10 +214,10 @@ const ParkingGrid: React.FC<ParkingGridProps> = ({ userUnitId }) => {
                   onSpotClick={handleSpotClick}
                   userUnitId={userUnitId}
                 />
-              </motion.div>
+              </m.div>
             ))}
           </AnimatePresence>
-        </motion.div>
+        </m.div>
       )}
 
       <ResponsiveDialog
@@ -227,7 +227,7 @@ const ParkingGrid: React.FC<ParkingGridProps> = ({ userUnitId }) => {
       >
         <AnimatePresence mode="wait">
           {dialogMode === 'details' && (
-            <motion.div
+            <m.div
               key="details"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -243,10 +243,10 @@ const ParkingGrid: React.FC<ParkingGridProps> = ({ userUnitId }) => {
                 onEditBooking={handleEditBooking}
                 onNewBooking={handleNewBooking}
               />
-            </motion.div>
+            </m.div>
           )}
           {(dialogMode === 'booking' || dialogMode === 'edit') && selectedSpot && (
-            <motion.div
+            <m.div
               key="booking"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -258,7 +258,7 @@ const ParkingGrid: React.FC<ParkingGridProps> = ({ userUnitId }) => {
                 existingBooking={editingBooking}
                 futureBookings={currentSpotFutureBookings}
               />
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </ResponsiveDialog>

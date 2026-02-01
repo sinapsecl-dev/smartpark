@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { ParkingLoader } from '@/components/ui/ParkingLoader';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Enter a valid email address.' }),
@@ -174,6 +175,7 @@ function LoginPageContent() {
         if (userProfile?.status === 'pending') {
           await supabase.auth.signOut();
           setError('Tu cuenta está pendiente de aprobación. El administrador revisará tu solicitud y te notificaremos por correo electrónico cuando sea aprobada.');
+          setLoading(false);
           return;
         }
 
@@ -181,6 +183,7 @@ function LoginPageContent() {
         if (userProfile?.status === 'suspended') {
           await supabase.auth.signOut();
           setError('Tu cuenta ha sido suspendida. Contacta al administrador de tu condominio.');
+          setLoading(false);
           return;
         }
 
@@ -193,10 +196,10 @@ function LoginPageContent() {
           router.push('/dashboard');
         }
         router.refresh();
+        // Keep loading true while redirecting
       }
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred.');
-    } finally {
       setLoading(false);
     }
   }, [supabase, router]);
@@ -251,21 +254,13 @@ function LoginPageContent() {
     }
   }, [supabase, getValues]);
 
+  if (loading) {
+    return <ParkingLoader fullScreen text="Iniciando sesión..." />;
+  }
+
   // Show loading screen while processing magic link
   if (processingToken) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background-light dark:bg-background-dark">
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-white shadow-lg animate-pulse">
-            <span className="material-symbols-outlined text-4xl">local_parking</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
-            <span className="text-gray-600 dark:text-gray-400">Procesando enlace...</span>
-          </div>
-        </div>
-      </div>
-    );
+    return <ParkingLoader fullScreen text="Procesando enlace..." />;
   }
 
   return (
@@ -363,8 +358,7 @@ function LoginPageContent() {
               className="w-full h-12 mt-2"
               disabled={loading}
             >
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Iniciar Sesión
+              {loading ? 'Cargando...' : 'Iniciar Sesión'}
             </Button>
           </form>
 
@@ -385,8 +379,7 @@ function LoginPageContent() {
               className="w-full h-12"
               disabled={loading}
             >
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="h-6 w-6">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="h-6 w-6 mr-2">
                 <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,8.065,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,19.033-8.136,19.033-19.979C43.967,21.104,43.784,20.597,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,8.065,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,2.83,0.56,5.509,1.556,8.01L12.03,28.267L6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,4.809C7.514,39.564,15.08,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,8.065,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,19.033-8.136,19.033-19.979C43.967,21.104,43.784,20.597,43.611,20.083z"></path>
               </svg>
               Iniciar con Google
@@ -399,8 +392,11 @@ function LoginPageContent() {
               className="w-full h-12"
               disabled={loading}
             >
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              <span className="material-symbols-outlined text-[20px] text-primary">auto_fix_high</span>
+              {loading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <span className="material-symbols-outlined text-[20px] text-primary mr-2">auto_fix_high</span>
+              )}
               Ingresar con Magic Link
             </Button>
           </div>
@@ -427,11 +423,7 @@ function LoginPageContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    }>
+    <Suspense fallback={<ParkingLoader fullScreen />}>
       <LoginPageContent />
     </Suspense>
   );

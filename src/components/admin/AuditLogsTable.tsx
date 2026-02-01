@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import clsx from 'clsx';
 
 interface AuditLogEntry {
@@ -76,7 +76,7 @@ const AuditLogsTable: React.FC<AuditLogsTableProps> = ({
     };
 
     return (
-        <motion.div
+        <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col rounded-xl bg-white dark:bg-[#1a2c35] shadow-sm border border-gray-100 dark:border-gray-700"
@@ -152,7 +152,7 @@ const AuditLogsTable: React.FC<AuditLogsTableProps> = ({
                             logs.map((log, index) => {
                                 const style = actionStyles[log.action];
                                 return (
-                                    <motion.tr
+                                    <m.tr
                                         key={log.id}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
@@ -186,7 +186,7 @@ const AuditLogsTable: React.FC<AuditLogsTableProps> = ({
                                         </td>
                                         <td className="px-6 py-4 text-[#0d171c] dark:text-gray-300">{log.unitName}</td>
                                         <td className="px-6 py-4 text-gray-500">{log.gateId || '-'}</td>
-                                    </motion.tr>
+                                    </m.tr>
                                 );
                             })
                         )}
@@ -241,7 +241,7 @@ const AuditLogsTable: React.FC<AuditLogsTableProps> = ({
                     </button>
                 </div>
             </div>
-        </motion.div>
+        </m.div>
     );
 };
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Settings, Building2, Shield, Save, Loader2, Copy, Check, ChevronDown } from 'lucide-react';
 import { updateCondominiumSettings, updateFairPlayRules } from './actions';
 
@@ -150,7 +150,7 @@ const CollapsibleSection = React.memo(({
     const [isOpen, setIsOpen] = useState(defaultOpen);
 
     return (
-        <motion.div
+        <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-white dark:bg-[#1a2c35] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden"
@@ -171,17 +171,17 @@ const CollapsibleSection = React.memo(({
                         {description}
                     </p>
                 </div>
-                <motion.div
+                <m.div
                     animate={{ rotate: isOpen ? 180 : 0 }}
                     transition={{ duration: 0.2 }}
                 >
                     <ChevronDown className="w-5 h-5 text-gray-400" />
-                </motion.div>
+                </m.div>
             </button>
 
             <AnimatePresence initial={false}>
                 {isOpen && (
-                    <motion.div
+                    <m.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
@@ -191,10 +191,10 @@ const CollapsibleSection = React.memo(({
                         <div className="px-4 pb-4 sm:px-6 sm:pb-6 pt-0">
                             {children}
                         </div>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
-        </motion.div>
+        </m.div>
     );
 });
 CollapsibleSection.displayName = 'CollapsibleSection';
@@ -273,7 +273,7 @@ export default function SettingsPageClient({ condominium, fairPlayRules }: Setti
             {/* Success Toast - Fixed on Mobile */}
             <AnimatePresence>
                 {successMessage && (
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
@@ -283,7 +283,7 @@ export default function SettingsPageClient({ condominium, fairPlayRules }: Setti
                             <Check className="w-5 h-5 flex-shrink-0" />
                             <span className="font-medium">{successMessage}</span>
                         </div>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
 
@@ -291,7 +291,7 @@ export default function SettingsPageClient({ condominium, fairPlayRules }: Setti
             <div className="flex-1 px-4 py-4 sm:px-6 sm:py-6">
                 <div className="max-w-3xl mx-auto flex flex-col gap-4 sm:gap-6">
                     {/* Access Code Card - Prominently displayed */}
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 
@@ -321,7 +321,7 @@ export default function SettingsPageClient({ condominium, fairPlayRules }: Setti
                         <p className="text-xs text-primary/80 mt-2">
                             Comparte este código con los nuevos residentes
                         </p>
-                    </motion.div>
+                    </m.div>
 
                     {/* Condominium Settings */}
                     <CollapsibleSection
