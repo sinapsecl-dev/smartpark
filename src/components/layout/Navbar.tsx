@@ -18,9 +18,12 @@ export default async function Navbar() {
       .eq('id', user.id)
       .single();
 
-    if (userProfile && userProfile.units) {
+    if (userProfile) {
       userRole = userProfile.role;
-      userHouseNumber = userProfile.units.name;
+      if (userProfile.units) {
+        // @ts-ignore - Supabase type inference for joined tables can be tricky
+        userHouseNumber = userProfile.units.name;
+      }
     } else if (profileError) {
       console.error('Error fetching user profile for Navbar:', JSON.stringify(profileError, null, 2));
     }
