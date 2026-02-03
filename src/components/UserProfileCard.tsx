@@ -39,17 +39,16 @@ export function UserProfileCard({ userId, initialEmail }: UserProfileCardProps) 
 
     const fetchStats = useCallback(async () => {
         try {
-            const [xpResult, reputationResult, achievementsResult, profileResult, avatarResult] = await Promise.all([
+            const [xpResult, infractionsResult, achievementsResult, profileResult, avatarResult] = await Promise.all([
                 supabase
                     .from("user_experience" as never)
                     .select("total_xp, level" as never)
                     .eq("user_id" as never, userId as never)
                     .single(),
                 supabase
-                    .from("user_reputation" as never)
-                    .select("reputation_score" as never)
-                    .eq("user_id" as never, userId as never)
-                    .single(),
+                    .from("infractions")
+                    .select("id", { count: "exact", head: true })
+                    .eq("offender_user_id", userId), // Check column name - usually offender_user_id
                 supabase
                     .from("user_achievements" as never)
                     .select("achievement_id" as never, { count: "exact", head: true } as never)
@@ -68,20 +67,22 @@ export function UserProfileCard({ userId, initialEmail }: UserProfileCardProps) 
             ]);
 
             type XPData = { total_xp: number; level: number } | null;
-            type RepData = { reputation_score: number } | null;
             type ProfileData = { full_name: string | null } | null;
             type AvatarData = { avatar_style: AvatarStyle; avatar_seed: string } | null;
 
             const xp = xpResult.data as unknown as XPData;
-            const rep = reputationResult.data as unknown as RepData;
             const profile = profileResult.data as unknown as ProfileData;
             const avatar = avatarResult.data as unknown as AvatarData;
+
+            // Calculate reputation: 100 - (infractions * 10)
+            const infractionCount = infractionsResult.count || 0;
+            const calculatedReputation = Math.max(0, 100 - (infractionCount * 10));
 
             setStats({
                 totalXP: xp?.total_xp ?? 0,
                 level: xp?.level ?? 1,
                 achievementCount: achievementsResult.count ?? 0,
-                reputationScore: rep?.reputation_score ?? 100,
+                reputationScore: calculatedReputation,
                 email: initialEmail,
                 fullName: profile?.full_name ?? null,
                 avatarStyle: avatar?.avatar_style ?? "bottts",
@@ -103,7 +104,7 @@ export function UserProfileCard({ userId, initialEmail }: UserProfileCardProps) 
             .on(
                 'postgres_changes',
                 {
-                    event: 'UPDATE',
+                    event: '*', // Listen to INSERT and UPDATE
                     schema: 'public',
                     table: 'user_avatars',
                     filter: `user_id=eq.${userId}`,
@@ -115,20 +116,48 @@ export function UserProfileCard({ userId, initialEmail }: UserProfileCardProps) 
             )
             .subscribe();
 
+        // Listen for global XP update events (from GamificationListener)
+        const handleXPUpdate = (event: CustomEvent<{ totalXP: number; level: number }>) => {
+            console.log("UserProfileCard: XP Update received", event.detail);
+            setStats(prev => prev ? {
+                ...prev,
+                totalXP: event.detail.totalXP,
+                level: event.detail.level
+            } : null);
+        };
+
+        if (typeof window !== "undefined") {
+            window.addEventListener("xp:update" as never, handleXPUpdate as EventListener);
+        }
+
         return () => {
             supabase.removeChannel(channel);
+            if (typeof window !== "undefined") {
+                window.removeEventListener("xp:update" as never, handleXPUpdate as EventListener);
+            }
         };
     }, [fetchStats, supabase, userId]);
 
     if (isLoading) {
         return (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 animate-pulse">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm animate-pulse">
                 <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700" />
+                    <div className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0" />
                     <div className="flex-1 space-y-2">
+                        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32" />
                         <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24" />
-                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-32" />
                     </div>
+                </div>
+                <div className="mt-4">
+                    <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full w-full" />
+                    <div className="flex justify-between mt-1">
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16" />
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-8" />
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 border-t border-gray-100 dark:border-gray-700 mt-4 pt-3 gap-4">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20" />
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 ml-auto" />
                 </div>
             </div>
         );

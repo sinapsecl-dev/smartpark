@@ -1,62 +1,45 @@
 # Page snapshot
 
 ```yaml
-- generic [active] [ref=e1]:
-  - navigation [ref=e2]:
-    - generic [ref=e3]:
-      - link "SmartParking" [ref=e4] [cursor=pointer]:
-        - /url: /
-      - generic [ref=e5]:
-        - link "Dashboard" [ref=e6] [cursor=pointer]:
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e5]:
+      - link "local_parking SinaPark" [ref=e6] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e8]: local_parking
+        - heading "SinaPark" [level=1] [ref=e10]
+      - navigation [ref=e12]:
+        - link "local_parking Estacionamientos" [ref=e13] [cursor=pointer]:
           - /url: /dashboard
-        - button "Login" [ref=e8]
-  - generic [ref=e10]:
-    - generic [ref=e13]:
-      - generic [ref=e15]: local_parking
-      - generic [ref=e16]: SmartPark
-    - generic [ref=e17]:
-      - generic [ref=e18]:
-        - heading "Welcome back" [level=2] [ref=e19]
-        - paragraph [ref=e20]: Please enter your details to sign in.
-      - generic [ref=e21]:
-        - generic [ref=e22]:
-          - paragraph [ref=e23]: Email or Username
-          - generic [ref=e24]:
-            - textbox "Email or Username person" [ref=e25]:
-              - /placeholder: apartment101@condo.cl
-            - generic [ref=e26]: person
-        - generic [ref=e27]:
-          - generic [ref=e28]:
-            - paragraph [ref=e29]: Password
-            - link "Forgot Password?" [ref=e30] [cursor=pointer]:
-              - /url: "#"
-          - generic [ref=e31]:
-            - textbox "Password Forgot Password? visibility" [ref=e32]:
-              - /placeholder: ••••••••
-            - button "visibility" [ref=e33] [cursor=pointer]:
-              - generic [ref=e34]: visibility
-        - button "Log In" [ref=e35] [cursor=pointer]:
-          - generic [ref=e36]: Log In
-      - generic [ref=e41]: Or continue with
-      - button "Sign in with Google" [ref=e42] [cursor=pointer]:
-        - img [ref=e43]
-        - generic [ref=e48]: Sign in with Google
-      - button "auto_fix_high Sign in via Magic Link" [ref=e49] [cursor=pointer]:
-        - generic [ref=e50]: auto_fix_high
-        - generic [ref=e51]: Sign in via Magic Link
-      - generic [ref=e52]:
-        - paragraph [ref=e53]:
-          - text: Don't have an account?
-          - link "Sign up" [ref=e54] [cursor=pointer]:
-            - /url: "#"
-        - generic [ref=e55]:
-          - link "Privacy Policy" [ref=e56] [cursor=pointer]:
-            - /url: "#"
-          - generic [ref=e57]: •
-          - link "Terms of Service" [ref=e58] [cursor=pointer]:
-            - /url: "#"
-        - paragraph [ref=e59]: SmartPark © 2026
-  - button "Open Next.js Dev Tools" [ref=e65] [cursor=pointer]:
-    - img [ref=e66]
-  - alert [ref=e70]
+          - generic [ref=e14]: local_parking
+          - text: Estacionamientos
+        - link "leaderboard Clasificación" [ref=e16] [cursor=pointer]:
+          - /url: /leaderboard
+          - generic [ref=e17]: leaderboard
+          - text: Clasificación
+        - link "person Perfil" [ref=e18] [cursor=pointer]:
+          - /url: /profile
+          - generic [ref=e19]: person
+          - text: Perfil
+      - generic [ref=e22]:
+        - generic [ref=e24]: home
+        - generic [ref=e25]: Test Unit 101
+  - main [ref=e27]:
+    - main [ref=e28]:
+      - generic [ref=e30]:
+        - complementary [ref=e31]
+        - generic [ref=e47]:
+          - generic [ref=e48]:
+            - generic [ref=e49]:
+              - heading "Estacionamiento de Visitas" [level=1] [ref=e50]
+              - paragraph [ref=e51]: Selecciona un espacio disponible para reservar
+            - button "report_problem Reportar Problema" [ref=e52]:
+              - generic [ref=e53]: report_problem
+              - generic [ref=e54]: Reportar Problema
+          - generic [ref=e55]:
+            - generic [ref=e58]: Disponible
+            - generic [ref=e61]: Ocupado
+            - generic [ref=e64]: Reservado
+            - generic [ref=e67]: Mi Reserva
+          - generic [ref=e70]: Conectando...
 ```

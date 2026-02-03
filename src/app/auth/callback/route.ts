@@ -8,6 +8,10 @@ export async function GET(request: Request) {
   const code = requestUrl.searchParams.get('code');
   const next = requestUrl.searchParams.get('next') || requestUrl.searchParams.get('redirect_to');
 
+  // Determine the base URL for redirection
+  // Prefer NEXT_PUBLIC_SITE_URL if available to avoid 0.0.0.0 issues in dev
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || requestUrl.origin;
+
   // Basic check for environment variables
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
     console.error('Environment variable NEXT_PUBLIC_SUPABASE_URL is not set.');
@@ -49,7 +53,7 @@ export async function GET(request: Request) {
 
       if (error) {
         console.error('Error during Supabase session exchange:', error);
-        return NextResponse.redirect(requestUrl.origin + '/login?error=auth_failed');
+        return NextResponse.redirect(`${baseUrl}/login?error=auth_failed`);
       }
 
       if (session?.user) {
@@ -64,39 +68,45 @@ export async function GET(request: Request) {
 
         // If user has no condominium linked, redirect to onboarding
         if (!userProfile || !userProfile.condominium_id) {
-          return NextResponse.redirect(requestUrl.origin + '/onboarding');
+          return NextResponse.redirect(`${baseUrl}/onboarding`);
         }
 
         // BLOCK PENDING USERS - they must wait for admin approval
         if (userProfile.status === 'pending') {
           // Sign them out and redirect to login with message
           await supabase.auth.signOut();
-          return NextResponse.redirect(requestUrl.origin + '/login?error=pending_approval');
+          return NextResponse.redirect(`${baseUrl}/login?error=pending_approval`);
         }
 
         // If user is suspended, block access
         if (userProfile.status === 'suspended') {
           await supabase.auth.signOut();
-          return NextResponse.redirect(requestUrl.origin + '/login?error=suspended');
+          return NextResponse.redirect(`${baseUrl}/login?error=suspended`);
         }
 
         // If user hasn't completed their profile, redirect to complete-profile
         if (!userProfile.profile_completed) {
-          return NextResponse.redirect(requestUrl.origin + '/complete-profile');
+          return NextResponse.redirect(`${baseUrl}/complete-profile`);
         }
+
+        // Check for first login achievement (async, fire-and-forget for performance)
+        (supabase as any).rpc('check_first_login_achievement', { p_user_id: session.user.id })
+          .then(({ error }: { error: any }) => {
+            if (error) console.error('First login achievement check failed:', error);
+          });
 
         // Redirect based on role
         if (userProfile.role === 'admin') {
-          return NextResponse.redirect(requestUrl.origin + '/admin');
+          return NextResponse.redirect(`${baseUrl}/admin`);
         }
       }
     } catch (error) {
       console.error('Error during Supabase session exchange:', error);
-      return NextResponse.redirect(requestUrl.origin + '/login?error=auth_failed');
+      return NextResponse.redirect(`${baseUrl}/login?error=auth_failed`);
     }
   }
 
   // Use the next parameter if provided, otherwise go to dashboard
-  const redirectTo = next ? requestUrl.origin + next : requestUrl.origin + '/dashboard';
+  const redirectTo = next ? `${baseUrl}${next}` : `${baseUrl}/dashboard`;
   return NextResponse.redirect(redirectTo);
 }

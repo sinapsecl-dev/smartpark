@@ -1,0 +1,41 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e5]:
+      - link "local_parking SinaPark" [ref=e6]:
+        - /url: /dashboard
+        - generic [ref=e7]: local_parking
+        - heading "SinaPark" [level=1] [ref=e9]
+      - generic [ref=e10]:
+        - navigation [ref=e11]:
+          - link "local_parkingEstacionamientos" [ref=e12]:
+            - /url: /dashboard
+            - text: local_parkingEstacionamientos
+          - link "leaderboardClasificación" [ref=e13]:
+            - /url: /leaderboard
+          - link "personPerfil" [ref=e14]:
+            - /url: /profile
+        - button "Toggle menu" [ref=e15]:
+          - img [ref=e17]
+      - generic [ref=e18]:
+        - generic [ref=e20]:
+          - generic [ref=e21]: home
+          - text: Test Unit 101
+        - generic [ref=e22]:
+          - navigation [ref=e23]:
+            - link "local_parkingEstacionamientos" [ref=e24]:
+              - /url: /dashboard
+              - text: local_parkingEstacionamientos
+            - link "leaderboardClasificación" [ref=e25]:
+              - /url: /leaderboard
+            - link "personPerfil" [ref=e26]:
+              - /url: /profile
+          - button "Toggle menu" [ref=e27]:
+            - img [ref=e29]
+  - main [ref=e30]:
+    - generic [ref=e32]:
+      - figure [ref=e35]
+      - paragraph [ref=e36]: Cargando SmartPark...
+```

@@ -296,8 +296,11 @@ function LoginPageContent() {
                     "form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border bg-background-light dark:bg-background-dark focus:border-primary h-12 placeholder:text-gray-400 p-[15px] text-base font-normal leading-normal transition-all",
                     errors.email ? 'border-red-500 dark:border-red-400' : 'border-gray-200 dark:border-gray-600'
                   )}
+                  id="email"
                   placeholder="apartment101@condo.cl"
                   type="email"
+                  autoComplete="username"
+                  suppressHydrationWarning
                   {...register('email')}
                   disabled={loading}
                 />
@@ -319,8 +322,11 @@ function LoginPageContent() {
                     "form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 focus:z-10 border bg-background-light dark:bg-background-dark focus:border-primary h-12 placeholder:text-gray-400 p-[15px] pr-2 text-base font-normal leading-normal border-r-0 transition-all",
                     errors.password ? 'border-red-500 dark:border-red-400' : 'border-gray-200 dark:border-gray-600'
                   )}
+                  id="password"
                   placeholder="••••••••"
                   type={passwordVisible ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  suppressHydrationWarning
                   {...register('password')}
                   disabled={loading}
                 />

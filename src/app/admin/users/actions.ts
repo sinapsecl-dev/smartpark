@@ -98,11 +98,19 @@ export async function createUser(formData: FormData) {
                 invited_at: new Date().toISOString(),
                 auth_provider: 'email'
             },
-            redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/complete-profile`,
+            // Redirect to auth/callback first - it will exchange the token and redirect to complete-profile
+            redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
         });
 
         if (error) {
             console.error('Error inviting user:', error);
+            // Handle rate limit specifically
+            if (error.status === 429 || error.message.includes('rate limit')) {
+                return {
+                    success: false,
+                    error: 'Límite de envío de correos excedido. Por favor espera unos minutos o usa otro correo.'
+                };
+            }
             return { success: false, error: error.message };
         }
 
@@ -174,14 +182,21 @@ export async function approveRegistration(
                         registration_id: registrationId,
                         approved_by: user.id,
                     },
-                    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/complete-profile`,
+                    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
                 });
 
                 if (!inviteError) {
                     invitationSent = true;
                 }
-            } catch (inviteErr) {
+            } catch (inviteErr: any) {
                 console.warn('Error sending approval invite:', inviteErr);
+                // Handle rate limit specifically
+                if (inviteErr.status === 429 || inviteErr.message?.includes('rate limit')) {
+                    return {
+                        success: false,
+                        error: 'Límite de envío de correos excedido. Por favor intenta más tarde.'
+                    };
+                }
             }
         }
 
@@ -402,12 +417,21 @@ export async function approveSelfRegistration(
                     type: 'magiclink',
                     email: pendingUser.email,
                     options: {
-                        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/complete-profile`,
+                        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
                     }
                 });
                 // Note: The magic link email will be sent, notifying them their account is ready
-            } catch (emailError) {
+            } catch (emailError: any) {
                 console.error('Error sending approval email:', emailError);
+                if (emailError.status === 429 || emailError.message?.includes('rate limit')) {
+                    // In this case (self-registration approval), we might want to warn but not fail completely 
+                    // since the user is already updated in DB?
+                    // Actually, if email fails, they won't get the magic link.
+                    // But they can request a new one later or use password reset.
+                    // Let's just log it for now as non-blocking for approval action, 
+                    // or maybe blocking if it's critical. 
+                    // The comment says "Continue even if email fails".
+                }
                 // Continue even if email fails - user can still log in with password
             }
         }

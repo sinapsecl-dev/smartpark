@@ -118,6 +118,24 @@ export async function getProfile() {
         .select('avatar_style, avatar_seed')
         .eq('user_id', user.id)
         .single();
+    // Get XP and Level
+    const { data: xpData } = await (supabase as any)
+        .from('user_experience')
+        .select('total_xp, level')
+        .eq('user_id', user.id)
+        .single();
+
+    // Get All Achievements Definitions
+    const { data: definitions } = await (supabase as any)
+        .from('achievements_definitions')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+    // Get User Achievements
+    const { data: userAchievements } = await (supabase as any)
+        .from('user_achievements')
+        .select('*')
+        .eq('user_id', user.id);
 
     return {
         ...profile,
@@ -125,5 +143,11 @@ export async function getProfile() {
             style: avatar.avatar_style,
             seed: avatar.avatar_seed
         } : { style: 'bottts', seed: user.id },
+        gamification: {
+            totalXP: xpData?.total_xp ?? 0,
+            level: xpData?.level ?? 1,
+            definitions: definitions ?? [],
+            userAchievements: userAchievements ?? [],
+        }
     };
 }

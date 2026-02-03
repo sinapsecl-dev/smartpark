@@ -108,6 +108,19 @@ export async function completeProfile(
             metadata: { profile_completed: true, user_type: data.userType },
         });
 
+        // Check for first login achievement (fire-and-forget for performance)
+        // This is the actual first time user completes their profile and can use the app
+        (supabase as any).rpc('check_first_login_achievement', { p_user_id: data.userId })
+            .then(({ error }: { error: any }) => {
+                if (error) console.error('First login achievement check failed:', error);
+            });
+
+        // Check for profile complete achievement (fire-and-forget for performance)
+        (supabase as any).rpc('check_profile_complete_achievement', { p_user_id: data.userId })
+            .then(({ error }: { error: any }) => {
+                if (error) console.error('Profile complete achievement check failed:', error);
+            });
+
         revalidatePath('/dashboard');
         return { success: true };
     } catch (error) {

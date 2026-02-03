@@ -1,16 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateProfile, updateAvatar } from '@/app/actions/profile';
 import { UserAvatar } from '@/components/gamification/UserAvatar';
 import { AvatarStyleSelector } from '@/components/gamification/AvatarStyleSelector';
+import { XPProgressBar } from '@/components/XPProgressBar';
+import { AchievementList } from '@/components/gamification/AchievementList';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { m } from 'framer-motion';
 import { User, Phone, Palette, Save, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 import clsx from 'clsx';
+import { AchievementDefinition, UserAchievement } from '@/types/gamification';
 
 interface ProfilePageClientProps {
     profile: {
@@ -22,6 +25,12 @@ interface ProfilePageClientProps {
         unit_id: string | null;
         units?: { name: string } | null;
         avatar: { style: string; seed: string };
+        gamification?: {
+            totalXP: number;
+            level: number;
+            definitions: AchievementDefinition[];
+            userAchievements: UserAchievement[];
+        };
     };
 }
 
@@ -38,6 +47,32 @@ export default function ProfilePageClient({ profile }: ProfilePageClientProps) {
     const [avatarStyle, setAvatarStyle] = useState(profile.avatar.style);
     const [avatarSeed, setAvatarSeed] = useState(profile.avatar.seed);
     const [showAvatarSelector, setShowAvatarSelector] = useState(false);
+
+    // Gamification state (real-time)
+    const [xpStats, setXpStats] = useState({
+        totalXP: profile.gamification?.totalXP || 0,
+        level: profile.gamification?.level || 1
+    });
+
+    useEffect(() => {
+        const handleXPUpdate = (event: CustomEvent<{ totalXP: number; level: number }>) => {
+            console.log("ProfilePage: XP Update received", event.detail);
+            setXpStats({
+                totalXP: event.detail.totalXP,
+                level: event.detail.level
+            });
+        };
+
+        if (typeof window !== "undefined") {
+            window.addEventListener("xp:update" as never, handleXPUpdate as EventListener);
+        }
+
+        return () => {
+            if (typeof window !== "undefined") {
+                window.removeEventListener("xp:update" as never, handleXPUpdate as EventListener);
+            }
+        };
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -147,6 +182,15 @@ export default function ProfilePageClient({ profile }: ProfilePageClientProps) {
                             size="xl"
                         />
 
+                        {/* XP Progress - Moved here */}
+                        <div className="w-full max-w-sm mt-2 mb-2">
+                            <XPProgressBar
+                                currentXP={xpStats.totalXP}
+                                level={xpStats.level}
+                                showDetails={true}
+                            />
+                        </div>
+
                         <Button
                             type="button"
                             variant="outline"
@@ -171,6 +215,19 @@ export default function ProfilePageClient({ profile }: ProfilePageClientProps) {
                             </m.div>
                         )}
                     </div>
+                </m.div>
+
+                {/* Achievements Section */}
+                <m.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                    className="bg-white dark:bg-[#1e2a32] rounded-2xl p-6 shadow-sm mb-6"
+                >
+                    <AchievementList
+                        definitions={profile.gamification?.definitions || []}
+                        userAchievements={profile.gamification?.userAchievements || []}
+                    />
                 </m.div>
 
                 {/* Profile Form */}

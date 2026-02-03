@@ -1,0 +1,89 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - link "local_parking SinaPark" [ref=e6]:
+          - /url: /dashboard
+          - generic [ref=e8]: local_parking
+          - heading "SinaPark" [level=1] [ref=e10]
+        - navigation [ref=e12]:
+          - link "local_parking Estacionamientos" [ref=e13]:
+            - /url: /dashboard
+            - generic [ref=e14]: local_parking
+            - text: Estacionamientos
+          - link "leaderboard Clasificación" [ref=e15]:
+            - /url: /leaderboard
+            - generic [ref=e16]: leaderboard
+            - text: Clasificación
+          - link "person Perfil" [ref=e18]:
+            - /url: /profile
+            - generic [ref=e19]: person
+            - text: Perfil
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e24]: home
+            - generic [ref=e25]: Test Unit 101
+          - button "logout" [ref=e26]:
+            - generic [ref=e27]: logout
+    - main [ref=e29]:
+      - generic [ref=e31]:
+        - generic [ref=e32]:
+          - img [ref=e34]
+          - heading "Tabla de Clasificación" [level=1] [ref=e40]
+          - paragraph [ref=e41]: Top 50 usuarios más activos
+        - generic [ref=e42]:
+          - img [ref=e43]
+          - generic [ref=e48]: 5 usuarios clasificados
+        - list [ref=e50]:
+          - listitem [ref=e51]:
+            - generic [ref=e52]: "1"
+            - img "Avatar" [ref=e54]
+            - generic [ref=e55]:
+              - paragraph [ref=e56]: Usuario
+              - paragraph [ref=e57]: Lv.1 • Novato
+            - generic [ref=e58]:
+              - paragraph [ref=e59]: "0"
+              - paragraph [ref=e60]: XP
+          - listitem [ref=e61]:
+            - generic [ref=e62]: "2"
+            - img "Avatar" [ref=e64]
+            - generic [ref=e65]:
+              - paragraph [ref=e66]: Usuario(Tú)
+              - paragraph [ref=e67]: Lv.1 • Novato
+            - generic [ref=e68]:
+              - paragraph [ref=e69]: "0"
+              - paragraph [ref=e70]: XP
+          - listitem [ref=e71]:
+            - generic [ref=e72]: "3"
+            - img "Avatar" [ref=e74]
+            - generic [ref=e75]:
+              - paragraph [ref=e76]: Usuario
+              - paragraph [ref=e77]: Lv.1 • Novato
+            - generic [ref=e78]:
+              - paragraph [ref=e79]: "0"
+              - paragraph [ref=e80]: XP
+          - listitem [ref=e81]:
+            - generic [ref=e82]: "4"
+            - img "Avatar" [ref=e84]
+            - generic [ref=e85]:
+              - paragraph [ref=e86]: Usuario
+              - paragraph [ref=e87]: Lv.1 • Novato
+            - generic [ref=e88]:
+              - paragraph [ref=e89]: "0"
+              - paragraph [ref=e90]: XP
+          - listitem [ref=e91]:
+            - generic [ref=e92]: "5"
+            - img "Avatar" [ref=e94]
+            - generic [ref=e95]:
+              - paragraph [ref=e96]: Usuario
+              - paragraph [ref=e97]: Lv.1 • Novato
+            - generic [ref=e98]:
+              - paragraph [ref=e99]: "0"
+              - paragraph [ref=e100]: XP
+  - button "Open Next.js Dev Tools" [ref=e106] [cursor=pointer]:
+    - img [ref=e107]
+  - alert [ref=e112]: Leaderboard - SmartParking
+```

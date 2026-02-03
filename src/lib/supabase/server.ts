@@ -2,7 +2,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { Database } from '@/types/supabase'; // Import the generated types
 
-export async function createServerComponentClient() {
+export async function createServerComponentClient<T = Database>() {
   const cookieStore = await cookies();
 
   const supabaseJwtSecret = process.env.SUPABASE_JWT_SECRET;
@@ -18,7 +18,7 @@ export async function createServerComponentClient() {
   }
 
 
-  const supabase = createServerClient<Database>(
+  const supabase = createServerClient<T>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {

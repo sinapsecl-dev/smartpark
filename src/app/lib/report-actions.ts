@@ -54,6 +54,25 @@ export async function createInfractionReport(formData: FormData) {
     return { success: false, message: 'Failed to create report: ' + error.message };
   }
 
+  // Award XP for reporting a valid issue (initially it's pending, but we might award for "Active Participation" 
+  // or only when it's resolved. The plan says "REPORT_VALID_ISSUE". 
+  // For now, let's award a small amount for reporting, or wait for resolution?
+  // The action is REPORT_VALID_ISSUE. So strictly speaking should be on resolution.
+  // But let's check `actions/gamification.ts` -> checkAchievements("REPORT_VALID_ISSUE") checks for "status=resolved".
+  // So we should probably NOT award XP here yet, OR we award a smaller amount for participation?
+  // Given instructions, let's wait for resolution.
+  // HOWEVER, I will add the import to clean up the file and maybe invoke a "REPORT_SUBMITTED" if we had it.
+  // Actually, I'll stick to the plan: "REPORT_VALID_ISSUE" -> 40 XP. This implies validation.
+  // So I will NOT award XP here.
+  // BUT, I should check if there is an action for "Report Solved" or "Infraction Resolved".
+  // There isn't. I'll leave this file alone regarding XP for now, OR maybe award a small "submission" XP?
+  // No, I'll stick to "REPORT_VALID_ISSUE".
+
+  // Wait! I need to update the imports at the top regardless if I use it.
+  // Actually, I'll assume the ADMIN resolves it and triggers the XP award.
+  // So I will NOT change this function for XP yet, unless I want to award for just reporting.
+  // Let's assume for now 5 XP for reporting? No, better stick to spec.
+
   revalidatePath('/dashboard'); // Revalidate dashboard or admin panel
   revalidatePath('/admin'); // Assuming admin also sees reports
 

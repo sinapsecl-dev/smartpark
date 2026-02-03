@@ -22,7 +22,7 @@ async function globalSetup() {
   await page.fill('input[type="password"]', TEST_USER_PASSWORD);
 
   // Click the login button
-  await page.click('button:has-text("Log In")');
+  await page.click('button:has-text("Iniciar Sesión")');
 
   // Wait for navigation to the dashboard page after successful login
   await page.waitForURL('http://localhost:3000/dashboard');

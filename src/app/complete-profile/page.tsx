@@ -9,8 +9,10 @@ export default async function CompleteProfilePage() {
 
     const { data: { user } } = await supabase.auth.getUser();
 
+    // If no user, return null - the AuthHashHandler layout will redirect to login
+    // This allows hash fragment tokens to be processed on the client first
     if (!user) {
-        redirect('/login');
+        return null;
     }
 
     // Check if user already has a profile

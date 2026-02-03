@@ -1,0 +1,52 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - link "local_parking SinaPark" [ref=e6] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e8]: local_parking
+          - heading "SinaPark" [level=1] [ref=e10]
+        - navigation [ref=e12]:
+          - link "local_parking Estacionamientos" [ref=e13] [cursor=pointer]:
+            - /url: /dashboard
+            - generic [ref=e14]: local_parking
+            - text: Estacionamientos
+          - link "leaderboard Clasificación" [ref=e16] [cursor=pointer]:
+            - /url: /leaderboard
+            - generic [ref=e17]: leaderboard
+            - text: Clasificación
+          - link "person Perfil" [ref=e18] [cursor=pointer]:
+            - /url: /profile
+            - generic [ref=e19]: person
+            - text: Perfil
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e24]: home
+            - generic [ref=e25]: Test Unit 101
+          - button "logout" [ref=e26]:
+            - generic [ref=e27]: logout
+    - main [ref=e29]:
+      - main [ref=e30]:
+        - generic [ref=e32]:
+          - complementary [ref=e33]
+          - generic [ref=e49]:
+            - generic [ref=e50]:
+              - generic [ref=e51]:
+                - heading "Estacionamiento de Visitas" [level=1] [ref=e52]
+                - paragraph [ref=e53]: Selecciona un espacio disponible para reservar
+              - button "report_problem Reportar Problema" [ref=e54]:
+                - generic [ref=e55]: report_problem
+                - generic [ref=e56]: Reportar Problema
+            - generic [ref=e57]:
+              - generic [ref=e60]: Disponible
+              - generic [ref=e63]: Ocupado
+              - generic [ref=e66]: Reservado
+              - generic [ref=e69]: Mi Reserva
+            - generic [ref=e72]: Conectando...
+  - button "Open Next.js Dev Tools" [ref=e140] [cursor=pointer]:
+    - img [ref=e141]
+  - alert [ref=e144]
+```

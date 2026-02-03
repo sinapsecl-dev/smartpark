@@ -69,15 +69,26 @@ export async function createBooking(formData: FormData) {
   };
 
   // Insert the booking into the database
-  const { error } = await supabase.from('bookings').insert([newBooking] as any);
+  const { data: insertedBooking, error } = await supabase
+    .from('bookings')
+    .insert([newBooking] as any)
+    .select()
+    .single();
 
-  if (error) {
+  if (error || !insertedBooking) {
     console.error('Error creating booking:', error);
-    return { success: false, message: 'Error al crear reserva: ' + error.message };
+    return { success: false, message: 'Error al crear reserva: ' + (error?.message || 'Unknown error') };
   }
 
   // Award XP for creating a booking
-  const xpResult = await awardXP(user.id, "BOOKING_CREATED");
+  // We pass the booking ID to link the transaction
+  const xpResult = await awardXP(user.id, "BOOKING_CREATED", insertedBooking.id);
+
+  // Check for first booking achievement (fire-and-forget)
+  (supabase as any).rpc('check_first_booking_achievement', { p_user_id: user.id })
+    .then(({ error }: { error: any }) => {
+      if (error) console.error('First booking achievement check failed:', error);
+    });
 
   revalidatePath('/dashboard');
 
@@ -134,6 +145,10 @@ export async function deleteBooking(bookingId: string) {
     return { success: false, message: 'No puedes cancelar una reserva que ya ha comenzado.' };
   }
 
+  // Calculate hours before start for "Early Cancellation" bonus
+  const hoursData = (startTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+  const isEarlyCancellation = hoursData >= 4; // e.g. 4 hours in advance
+
   // Delete the booking
   const { error: deleteError } = await supabase
     .from('bookings')
@@ -143,6 +158,17 @@ export async function deleteBooking(bookingId: string) {
   if (deleteError) {
     console.error('Error deleting booking:', deleteError);
     return { success: false, message: 'Error al cancelar reserva: ' + deleteError.message };
+  }
+
+  // Award XP if early cancellation
+  // Note: We cannot link to booking_id because it's deleted (unless ON DELETE SET NULL which we have, but the row is gone)
+  // Actually, if we delete the row, the transaction booking_id FK will be set to NULL.
+  // We can still log it.
+  if (isEarlyCancellation) {
+    await awardXP(user.id, "BOOKING_CANCELLED_EARLY", undefined, {
+      original_booking_id: bookingId,
+      cancelled_at: now.toISOString()
+    });
   }
 
   revalidatePath('/dashboard');

@@ -2,6 +2,7 @@ import ParkingGrid from '@/components/parking/ParkingGrid';
 import { createServerComponentClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { UserProfileCard } from '@/components/UserProfileCard';
+import { MobileHeader } from '@/components/dashboard/MobileHeader';
 
 export default async function DashboardPage() {
   const supabase = await createServerComponentClient();
@@ -12,16 +13,21 @@ export default async function DashboardPage() {
     redirect('/login');
   }
 
-  // Fetch user profile to get unit_id and role
+  // Fetch user profile to get unit_id, role, and profile_completed status
   const { data: userProfile, error: profileError } = await (supabase
-    .from('users') as unknown as { select: (cols: string) => { eq: (col: string, val: string) => { single: () => Promise<{ data: { unit_id: string; role: string } | null; error: unknown }> } } })
-    .select('unit_id, role')
+    .from('users') as unknown as { select: (cols: string) => { eq: (col: string, val: string) => { single: () => Promise<{ data: { unit_id: string; role: string; profile_completed: boolean } | null; error: unknown }> } } })
+    .select('unit_id, role, profile_completed')
     .eq('id', user.id)
     .single();
 
   if (profileError || !userProfile) {
     console.error('Error fetching user profile:', profileError);
     redirect('/onboarding');
+  }
+
+  // Force users to complete profile before accessing dashboard
+  if (!userProfile.profile_completed) {
+    redirect('/complete-profile');
   }
 
   if (userProfile.role === 'admin') {
@@ -32,9 +38,9 @@ export default async function DashboardPage() {
     <main className="flex-1 w-full px-4 sm:px-8 lg:px-40 py-6 sm:py-8 flex justify-center">
       <div className="flex flex-col w-full max-w-[1200px] gap-6 sm:gap-8">
 
-        {/* Mobile: User Profile Card at top */}
-        <div className="lg:hidden">
-          <UserProfileCard userId={user.id} initialEmail={user.email || ''} />
+        {/* Mobile: Compact Header */}
+        <div className="lg:hidden mb-2">
+          <MobileHeader userId={user.id} initialEmail={user.email || ''} />
         </div>
 
         {/* Main Content Grid */}

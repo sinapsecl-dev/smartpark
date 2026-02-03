@@ -1,0 +1,85 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - link "local_parking SinaPark" [ref=e6]:
+          - /url: /dashboard
+          - generic [ref=e8]: local_parking
+          - heading "SinaPark" [level=1] [ref=e10]
+        - navigation [ref=e12]:
+          - link "local_parking Estacionamientos" [ref=e13]:
+            - /url: /dashboard
+            - generic [ref=e14]: local_parking
+            - text: Estacionamientos
+          - link "leaderboard Clasificación" [ref=e15]:
+            - /url: /leaderboard
+            - generic [ref=e16]: leaderboard
+            - text: Clasificación
+          - link "person Perfil" [ref=e18]:
+            - /url: /profile
+            - generic [ref=e19]: person
+            - text: Perfil
+        - generic [ref=e22]:
+          - generic [ref=e24]: home
+          - generic [ref=e25]: Test Unit 101
+    - main [ref=e27]:
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - img [ref=e32]
+          - heading "Tabla de Clasificación" [level=1] [ref=e38]
+          - paragraph [ref=e39]: Top 50 usuarios más activos
+        - generic [ref=e40]:
+          - img [ref=e41]
+          - generic [ref=e46]: 5 usuarios clasificados
+        - list [ref=e48]:
+          - listitem [ref=e49]:
+            - generic [ref=e50]: "1"
+            - img "Avatar" [ref=e52]
+            - generic [ref=e53]:
+              - paragraph [ref=e54]: Usuario
+              - paragraph [ref=e55]: Lv.1 • Novato
+            - generic [ref=e56]:
+              - paragraph [ref=e57]: "0"
+              - paragraph [ref=e58]: XP
+          - listitem [ref=e59]:
+            - generic [ref=e60]: "2"
+            - img "Avatar" [ref=e62]
+            - generic [ref=e63]:
+              - paragraph [ref=e64]: Usuario(Tú)
+              - paragraph [ref=e65]: Lv.1 • Novato
+            - generic [ref=e66]:
+              - paragraph [ref=e67]: "0"
+              - paragraph [ref=e68]: XP
+          - listitem [ref=e69]:
+            - generic [ref=e70]: "3"
+            - img "Avatar" [ref=e72]
+            - generic [ref=e73]:
+              - paragraph [ref=e74]: Usuario
+              - paragraph [ref=e75]: Lv.1 • Novato
+            - generic [ref=e76]:
+              - paragraph [ref=e77]: "0"
+              - paragraph [ref=e78]: XP
+          - listitem [ref=e79]:
+            - generic [ref=e80]: "4"
+            - img "Avatar" [ref=e82]
+            - generic [ref=e83]:
+              - paragraph [ref=e84]: Usuario
+              - paragraph [ref=e85]: Lv.1 • Novato
+            - generic [ref=e86]:
+              - paragraph [ref=e87]: "0"
+              - paragraph [ref=e88]: XP
+          - listitem [ref=e89]:
+            - generic [ref=e90]: "5"
+            - img "Avatar" [ref=e92]
+            - generic [ref=e93]:
+              - paragraph [ref=e94]: Usuario
+              - paragraph [ref=e95]: Lv.1 • Novato
+            - generic [ref=e96]:
+              - paragraph [ref=e97]: "0"
+              - paragraph [ref=e98]: XP
+  - button "Open Next.js Dev Tools" [ref=e104] [cursor=pointer]:
+    - img [ref=e105]
+```

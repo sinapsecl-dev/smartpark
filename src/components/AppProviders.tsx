@@ -7,6 +7,7 @@ import { AchievementToast } from "@/components/AchievementToast";
 import { XPGainToastProvider } from "@/components/gamification/XPGainToast";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import type { Achievement } from "@/lib/gamification";
+import { GamificationListener } from "@/components/gamification/GamificationListener";
 
 interface AppProvidersProps {
     children: ReactNode;
@@ -71,6 +72,9 @@ export function AppProviders({ children }: AppProvidersProps) {
 
             {/* Global XP Gain Toast */}
             <XPGainToastProvider />
+
+            {/* Realtime Listeners */}
+            <GamificationListener />
         </LazyMotion>
     );
 }

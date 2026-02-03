@@ -41,12 +41,14 @@ export function ResponsiveDialog({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             {description && <DialogDescription>{description}</DialogDescription>}
           </DialogHeader>
-          {children}
+          <div className="px-1">
+            {children}
+          </div>
         </DialogContent>
       </Dialog>
     );
@@ -59,12 +61,12 @@ export function ResponsiveDialog({
           <DrawerTitle>{title}</DrawerTitle>
           {description && <DrawerDescription>{description}</DrawerDescription>}
         </DrawerHeader>
-        <div className="px-4">{children}</div>
-        <DrawerFooter className="pt-2">
+        <div className="px-4 overflow-y-auto max-h-[85vh]">{children}</div>
+        {/* <DrawerFooter className="pt-2 pb-8 sm:pb-4">
           <DrawerClose asChild>
-            <button className="w-full mt-2 h-10 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-sm font-medium rounded-md">Cancel</button>
+            <button className="w-full mt-2 h-10 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-sm font-medium rounded-md active:scale-95 transition-transform">Cancelar</button>
           </DrawerClose>
-        </DrawerFooter>
+        </DrawerFooter> */}
       </DrawerContent>
     </Drawer>
   );

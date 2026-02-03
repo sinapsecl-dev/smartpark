@@ -13,6 +13,10 @@ export const XP_REWARDS = {
     INVITE_GUEST: 15,
     PROFILE_COMPLETED: 25,
     FIRST_LOGIN_OF_DAY: 5,
+    FIRST_LOGIN: 15, // Primer inicio de sesión
+    BOOKING_CANCELLED_EARLY: 5, // Good neighbor bonus
+    ACHIEVEMENT_UNLOCKED: 0, // Bonus handled by achievement definition
+    FIRST_BOOKING_EVER: 0, // Handled via achievement
 } as const;
 
 export type XPAction = keyof typeof XP_REWARDS;
@@ -124,6 +128,30 @@ export const ACHIEVEMENTS: Record<string, Achievement> = {
         icon: "🛡️",
         xpBonus: 80,
         requirement: { type: "valid_reports", count: 5 },
+    },
+    FIRST_LOGIN: {
+        id: "first_login",
+        name: "Bienvenido a SinaPark",
+        description: "Iniciaste sesión por primera vez",
+        icon: "🎉",
+        xpBonus: 15,
+        requirement: { type: "first_login", count: 1 },
+    },
+    PROFILE_COMPLETE: {
+        id: "profile_complete",
+        name: "Perfil Completo",
+        description: "Completaste toda la información de tu perfil",
+        icon: "✨",
+        xpBonus: 30,
+        requirement: { type: "profile_completed", count: 1 },
+    },
+    BOOKING_EXPLORER: {
+        id: "booking_explorer_10",
+        name: "Explorador",
+        description: "Realizaste 10 reservas",
+        icon: "🗺️",
+        xpBonus: 75,
+        requirement: { type: "bookings_completed", count: 10 },
     },
 } as const;
 

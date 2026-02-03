@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Tables } from '@/types/supabase';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -12,6 +12,7 @@ import { Loader2, ChevronLeft, ChevronRight, Clock, Car, CheckCircle2, Edit3, Al
 import { m, AnimatePresence } from 'framer-motion';
 import { triggerBookingConfetti } from '@/components/BookingConfetti';
 import { showXPToast } from '@/components/gamification/XPGainToast';
+import { BookingSuccessOverlay } from './BookingSuccessOverlay';
 
 // ============================================================
 // UTILITIES
@@ -231,43 +232,28 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({ spotName, licensePlate,
     <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#f0f9ff] dark:bg-primary/10 rounded-xl p-5 border border-primary/20 space-y-4"
+      className="bg-[#f0f9ff] dark:bg-primary/10 rounded-xl p-4 border border-primary/20"
     >
-      <div className="flex items-center gap-2 text-primary">
-        <CheckCircle2 className="w-5 h-5" />
-        <h3 className="font-semibold text-base">Resumen de Reserva</h3>
-      </div>
-
-      <div className="grid gap-3">
+      <div className="flex flex-col gap-2">
+        {/* Row 1: Spot & Plate */}
         <div className="flex items-center justify-between">
-          <span className="text-[#49829c] dark:text-[#a0bfce] text-sm flex items-center gap-2">
-            <span className="material-symbols-outlined text-[18px]">local_parking</span>
-            Estacionamiento
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+              {spotName.replace('Estacionamiento ', '')}
+            </div>
+            <span className="font-bold text-[#0d171c] dark:text-white font-mono tracking-wider uppercase">{licensePlate}</span>
+          </div>
+          <span className="text-primary font-bold text-sm bg-white dark:bg-primary/20 px-2 py-1 rounded-md shadow-sm">
+            {durationString}
           </span>
-          <span className="font-bold text-[#0d171c] dark:text-white">{spotName}</span>
         </div>
 
-        <div className="flex items-center justify-between">
-          <span className="text-[#49829c] dark:text-[#a0bfce] text-sm flex items-center gap-2">
-            <Car className="w-4 h-4" />
-            Patente
-          </span>
-          <span className="font-bold text-[#0d171c] dark:text-white font-mono tracking-wider uppercase">{licensePlate}</span>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <span className="text-[#49829c] dark:text-[#a0bfce] text-sm flex items-center gap-2">
-            <Clock className="w-4 h-4" />
-            Horario
-          </span>
-          <span className="font-bold text-[#0d171c] dark:text-white">
+        {/* Row 2: Time Range */}
+        <div className="flex items-center gap-2 text-sm text-[#49829c] dark:text-[#a0bfce]">
+          <Clock className="w-4 h-4" />
+          <span>
             {formatTime(startTime)} - {formatTime(endTime)}
           </span>
-        </div>
-
-        <div className="flex items-center justify-between pt-2 border-t border-primary/10">
-          <span className="text-[#49829c] dark:text-[#a0bfce] text-sm">Duración total</span>
-          <span className="font-bold text-primary text-lg">{durationString}</span>
         </div>
       </div>
     </m.div>
@@ -278,11 +264,31 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({ spotName, licensePlate,
 // MAIN COMPONENT
 // ============================================================
 
-type FormStep = 'details' | 'confirmation';
+// type FormStep = 'details' | 'confirmation'; // Removed
 
 const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBooking, futureBookings = [] }) => {
-  const [currentStep, setCurrentStep] = useState<FormStep>('details');
   const isEditMode = !!existingBooking;
+
+  // Success overlay state
+  const [successData, setSuccessData] = useState<{
+    show: boolean;
+    xpGained?: number;
+    leveledUp?: boolean;
+    newLevel?: number;
+  }>({ show: false });
+
+  // Handler when success overlay completes
+  const handleSuccessComplete = useCallback(() => {
+    // Trigger confetti
+    triggerBookingConfetti();
+    // Show XP toast if applicable
+    if (successData.xpGained) {
+      showXPToast(successData.xpGained, successData.leveledUp ?? false, successData.newLevel ?? 1);
+    }
+    // Close the form
+    onClose();
+  }, [successData, onClose]);
+
 
   // Get the current quantized time as the starting point
   const now = useMemo(() => getQuantizedTime(new Date()), []);
@@ -321,10 +327,12 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBookin
   const [selectedStartTime, setSelectedStartTime] = useState<Date>(
     startTimeOptions.includes(initialStartTime) ? initialStartTime : startTimeOptions[0]
   );
+
+  // Smart Default: Select 15 minutes (minimum) by default to avoid accidental long bookings
   const [selectedDuration, setSelectedDuration] = useState<number | null>(
     existingBooking
       ? (new Date(existingBooking.end_time).getTime() - new Date(existingBooking.start_time).getTime()) / (1000 * 60)
-      : null
+      : 15 // Default to 15 mins for new bookings
   );
 
   // Calculate max available duration based on selected start time and next booking
@@ -358,6 +366,26 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBookin
     },
   });
 
+  // Persistence: Load saved license plate on mount
+  useEffect(() => {
+    if (!existingBooking) {
+      const savedPlate = localStorage.getItem('last_license_plate');
+      if (savedPlate) {
+        setValue('license_plate', savedPlate, { shouldValidate: true, shouldDirty: true });
+      }
+    }
+  }, [existingBooking, setValue]);
+
+  // Sync initial times to form state on mount/change
+  useEffect(() => {
+    if (selectedStartTime) {
+      setValue('start_time', selectedStartTime.toISOString(), { shouldValidate: true });
+    }
+    if (selectedEndTime) {
+      setValue('end_time', selectedEndTime.toISOString(), { shouldValidate: true });
+    }
+  }, [selectedStartTime, selectedEndTime, setValue]);
+
   const licensePlateWatch = watch('license_plate');
 
   // Update form values when times change
@@ -380,18 +408,11 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBookin
     setValue('end_time', endTime.toISOString());
   }, [selectedStartTime, setValue]);
 
-  // Validate and proceed to confirmation
-  const handleProceedToConfirmation = async () => {
-    const isValid = await trigger(['license_plate', 'start_time', 'end_time']);
-    if (isValid && selectedEndTime) {
-      setCurrentStep('confirmation');
-    }
-  };
+  // Validate only (removed step logic)
+  // const handleProceedToConfirmation = async () => ...
 
-  // Go back to details
-  const handleBackToDetails = () => {
-    setCurrentStep('details');
-  };
+  // Go back (removed)
+  // const handleBackToDetails = () => ...
 
   // Submit form
   const onSubmit = async (data: BookingFormInputs) => {
@@ -399,7 +420,11 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBookin
     formData.append('license_plate', data.license_plate);
     formData.append('start_time', data.start_time);
     formData.append('end_time', data.end_time);
+    formData.append('end_time', data.end_time);
     formData.append('spot_id', data.spot_id);
+
+    // Persistence: Save license plate for future use
+    localStorage.setItem('last_license_plate', data.license_plate);
 
     let result;
 
@@ -410,213 +435,165 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, onClose, existingBookin
     }
 
     if (result.success) {
-      // Trigger celebration confetti and XP toast for new bookings
+      // For new bookings, show success overlay THEN trigger confetti
       if (!isEditMode) {
-        triggerBookingConfetti();
-        // Show XP gain toast with feedback
         const xpResult = result as { xpGained?: number; leveledUp?: boolean; newLevel?: number };
-        if (xpResult.xpGained) {
-          showXPToast(xpResult.xpGained, xpResult.leveledUp ?? false, xpResult.newLevel ?? 1);
-        }
+        setSuccessData({
+          show: true,
+          xpGained: xpResult.xpGained,
+          leveledUp: xpResult.leveledUp,
+          newLevel: xpResult.newLevel
+        });
         // Emit custom event for gamification hook to listen
         window.dispatchEvent(new CustomEvent('booking:created'));
+        // Don't close yet - overlay will handle it
+      } else {
+        onClose();
       }
-      onClose();
     } else {
       setError('root.serverError', { type: 'manual', message: result.message });
-      setCurrentStep('details');
     }
   };
 
-  // Animation variants
-  const slideVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 50 : -50,
-      opacity: 0,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-    },
-    exit: (direction: number) => ({
-      x: direction < 0 ? 50 : -50,
-      opacity: 0,
-    }),
-  };
 
-  const direction = currentStep === 'confirmation' ? 1 : -1;
+
+
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="overflow-hidden">
-      <AnimatePresence mode="wait" custom={direction}>
-        {currentStep === 'details' && (
-          <m.div
-            key="details"
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="flex flex-col gap-6"
-          >
-            {/* License Plate Input - PROMINENT */}
-            <div className="flex flex-col gap-3">
-              <label htmlFor="license_plate" className="text-sm font-bold text-[#0d171c] dark:text-white flex items-center gap-2">
-                <Car className="w-5 h-5 text-primary" />
-                Patente del Vehículo
-                <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  id="license_plate"
-                  type="text"
-                  {...register('license_plate')}
-                  className={clsx(
-                    'w-full px-4 py-4 rounded-xl border-2 bg-white dark:bg-[#101c22] text-[#0d171c] dark:text-white',
-                    'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
-                    'uppercase font-mono tracking-[0.3em] text-xl sm:text-2xl text-center transition-all',
-                    errors.license_plate
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/10'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-primary/50'
-                  )}
-                  placeholder="AB-CD-12"
-                  maxLength={10}
-                  autoFocus
-                />
-                {!licensePlateWatch && (
-                  <p className="mt-2 text-xs text-center text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1">
-                    <AlertCircle className="w-3 h-3" />
-                    Ingresa la patente antes de seleccionar horario
-                  </p>
-                )}
-              </div>
-              {errors.license_plate && (
-                <p className="text-sm text-red-500 text-center">{errors.license_plate.message}</p>
+    <form onSubmit={handleSubmit(onSubmit)} className="px-1">
+      <div className="flex flex-col gap-6">
+        {/* License Plate Input */}
+        <div className="flex flex-col gap-3">
+          <label htmlFor="license_plate" className="text-sm font-bold text-[#0d171c] dark:text-white flex items-center gap-2">
+            <Car className="w-5 h-5 text-primary" />
+            Patente del Vehículo
+            <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <input
+              id="license_plate"
+              type="text"
+              {...register('license_plate')}
+              className={clsx(
+                'w-full px-4 py-4 rounded-xl border-2 bg-white dark:bg-[#101c22] text-[#0d171c] dark:text-white',
+                'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
+                'uppercase font-mono tracking-[0.3em] text-xl sm:text-2xl text-center transition-all',
+                errors.license_plate
+                  ? 'border-red-500 bg-red-50 dark:bg-red-900/10'
+                  : 'border-gray-200 dark:border-gray-700 hover:border-primary/50'
               )}
-            </div>
-
-            {/* Start Time Selection - Carousel */}
-            <div className="flex flex-col gap-3">
-              <label className="text-sm font-semibold text-[#0d171c] dark:text-white flex items-center gap-2">
-                <Clock className="w-4 h-4 text-primary" />
-                Comenzar a las
-              </label>
-              <TimeCarousel
-                times={startTimeOptions}
-                selectedTime={selectedStartTime}
-                onSelect={handleStartTimeChange}
-              />
-            </div>
-
-            {/* Duration Selection - Pills */}
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-semibold text-[#0d171c] dark:text-white flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-primary" />
-                  Reservar por
-                </label>
-                {selectedDuration && (
-                  <span className="bg-primary/10 text-primary px-2.5 py-1 rounded-full text-xs font-bold">
-                    hasta {selectedEndTime && formatTime(selectedEndTime)}
-                  </span>
-                )}
-              </div>
-              <DurationPills
-                options={DURATION_OPTIONS}
-                selectedDuration={selectedDuration}
-                onSelect={handleDurationChange}
-                maxDuration={maxDuration}
-              />
-              {maxEndTime && maxDuration < MAX_BOOKING_DURATION_HOURS * 60 && (
-                <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-1">
-                  <AlertCircle className="w-3 h-3" />
-                  Máximo hasta {formatTime(maxEndTime)} (siguiente reserva)
-                </p>
-              )}
-            </div>
-
-            {/* Hidden inputs */}
-            <input type="hidden" {...register('start_time')} />
-            <input type="hidden" {...register('end_time')} />
-            <input type="hidden" {...register('spot_id')} />
-
-            {/* Errors */}
-            {errors.root?.serverError && (
-              <p className="text-sm text-red-500 text-center bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
-                {errors.root.serverError.message}
+              placeholder="AB-CD-12"
+              maxLength={10}
+            />
+            {!licensePlateWatch && (
+              <p className="mt-2 text-xs text-center text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                Ingresa la patente antes de seleccionar horario
               </p>
             )}
+          </div>
+          {errors.license_plate && (
+            <p className="text-sm text-red-500 text-center">{errors.license_plate.message as string}</p>
+          )}
+        </div>
 
-            {/* Continue Button */}
-            <Button
-              type="button"
-              onClick={handleProceedToConfirmation}
-              disabled={!licensePlateWatch || !selectedDuration}
-              className="w-full h-12 text-base font-bold"
+        {/* Start Time Selection - Carousel */}
+        <div className="flex flex-col gap-3">
+          <label className="text-sm font-semibold text-[#0d171c] dark:text-white flex items-center gap-2">
+            <Clock className="w-4 h-4 text-primary" />
+            Comenzar a las
+          </label>
+          <TimeCarousel
+            times={startTimeOptions}
+            selectedTime={selectedStartTime}
+            onSelect={handleStartTimeChange}
+          />
+        </div>
+
+        {/* Duration Selection - Pills */}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-semibold text-[#0d171c] dark:text-white flex items-center gap-2">
+              <Clock className="w-4 h-4 text-primary" />
+              Reservar por
+            </label>
+            {selectedDuration && selectedEndTime && (
+              <span className="bg-primary/10 text-primary px-2.5 py-1 rounded-full text-xs font-bold">
+                hasta {formatTime(selectedEndTime)}
+              </span>
+            )}
+          </div>
+          <DurationPills
+            options={DURATION_OPTIONS}
+            selectedDuration={selectedDuration}
+            onSelect={handleDurationChange}
+            maxDuration={maxDuration}
+          />
+          {maxEndTime && maxDuration < MAX_BOOKING_DURATION_HOURS * 60 && (
+            <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1 mt-1">
+              <AlertCircle className="w-3 h-3" />
+              Máximo hasta {formatTime(maxEndTime)} (siguiente reserva)
+            </p>
+          )}
+        </div>
+
+        {/* Live Summary (Instead of confirmation step) */}
+        <AnimatePresence>
+          {licensePlateWatch && selectedEndTime && (
+            <m.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
             >
-              Continuar
-            </Button>
-          </m.div>
-        )}
-
-        {currentStep === 'confirmation' && (
-          <m.div
-            key="confirmation"
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="flex flex-col gap-6"
-          >
-            {/* Back Button */}
-            <button
-              type="button"
-              onClick={handleBackToDetails}
-              className="flex items-center gap-2 text-[#49829c] dark:text-[#a0bfce] hover:text-primary transition-colors self-start"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              <span className="text-sm font-medium">Modificar datos</span>
-            </button>
-
-            {/* Summary */}
-            {selectedEndTime && (
               <BookingSummary
                 spotName={spot.name || 'Sin nombre'}
                 licensePlate={licensePlateWatch}
                 startTime={selectedStartTime}
                 endTime={selectedEndTime}
               />
-            )}
+            </m.div>
+          )}
+        </AnimatePresence>
 
-            {/* Errors */}
-            {errors.root?.serverError && (
-              <p className="text-sm text-red-500 text-center bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
-                {errors.root.serverError.message}
-              </p>
-            )}
 
-            {/* Confirm Button */}
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full h-12 text-base font-bold shadow-lg shadow-primary/30 gap-2"
-            >
-              {isSubmitting && <Loader2 className="h-5 w-5 animate-spin" />}
-              {isEditMode ? (
-                <>
-                  <Edit3 className="w-4 h-4" />
-                  Actualizar Reserva
-                </>
-              ) : (
-                'Confirmar Reserva'
-              )}
-            </Button>
-          </m.div>
+        {/* Hidden inputs */}
+        <input type="hidden" {...register('start_time')} />
+        <input type="hidden" {...register('end_time')} />
+        <input type="hidden" {...register('spot_id')} />
+
+        {/* Errors */}
+        {errors.root?.serverError && (
+          <p className="text-sm text-red-500 text-center bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+            {(errors.root.serverError as any).message}
+          </p>
         )}
-      </AnimatePresence>
+
+        {/* Global Submit Button (Sticky) */}
+        <div className="sticky bottom-0 -mx-4 px-4 pt-4 pb-2 bg-gradient-to-t from-white via-white to-transparent dark:from-[#152028] dark:via-[#152028] dark:to-transparent mt-2">
+          <Button
+            type="submit"
+            disabled={!licensePlateWatch || !selectedDuration || isSubmitting}
+            className="w-full h-12 text-base font-bold shadow-lg shadow-primary/30 gap-2"
+          >
+            {isSubmitting ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <>
+                {isEditMode ? <Edit3 className="w-4 h-4" /> : <CheckCircle2 className="w-5 h-5" />}
+                {isEditMode ? 'Actualizar Reserva' : 'Confirmar Reserva'}
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {/* Success Overlay - shown after booking confirmation */}
+      <BookingSuccessOverlay
+        isVisible={successData.show}
+        onComplete={handleSuccessComplete}
+        spotName={spot.name}
+      />
     </form>
   );
 };

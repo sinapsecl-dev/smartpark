@@ -1,0 +1,174 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - link "local_parking SinaPark" [ref=e6] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e8]: local_parking
+          - heading "SinaPark" [level=1] [ref=e10]
+        - navigation [ref=e12]:
+          - link "local_parking Estacionamientos" [ref=e13] [cursor=pointer]:
+            - /url: /dashboard
+            - generic [ref=e14]: local_parking
+            - text: Estacionamientos
+          - link "leaderboard Clasificación" [ref=e16] [cursor=pointer]:
+            - /url: /leaderboard
+            - generic [ref=e17]: leaderboard
+            - text: Clasificación
+          - link "person Perfil" [ref=e18] [cursor=pointer]:
+            - /url: /profile
+            - generic [ref=e19]: person
+            - text: Perfil
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e24]: home
+            - generic [ref=e25]: Test Unit 101
+          - button "logout" [ref=e26]:
+            - generic [ref=e27]: logout
+    - main [ref=e29]:
+      - main [ref=e30]:
+        - generic [ref=e32]:
+          - complementary [ref=e33]:
+            - generic [ref=e35]:
+              - generic [ref=e36]:
+                - generic [ref=e37]:
+                  - generic [ref=e38]:
+                    - img "Avatar" [ref=e40]
+                    - generic [ref=e41]: "1"
+                  - generic [ref=e42]:
+                    - heading "Test User" [level=3] [ref=e43]
+                    - paragraph [ref=e44]:
+                      - img [ref=e45]
+                      - generic [ref=e47]: Nivel 1 • Novato
+                  - generic [ref=e50]: "100"
+                - generic [ref=e52]:
+                  - generic [ref=e53]: Lv.1
+                  - generic [ref=e55]: 0 XP
+              - generic [ref=e56]:
+                - link "Logros 0/8" [ref=e57] [cursor=pointer]:
+                  - /url: /leaderboard
+                  - generic [ref=e58]:
+                    - img [ref=e59]
+                    - generic [ref=e66]: Logros
+                  - generic [ref=e67]:
+                    - generic [ref=e68]:
+                      - text: "0"
+                      - generic [ref=e69]: /8
+                    - img [ref=e70]
+                - link "0 XP" [ref=e72] [cursor=pointer]:
+                  - /url: /leaderboard
+                  - generic [ref=e74]: 0 XP
+                  - img [ref=e75]
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - generic [ref=e79]:
+                - heading "Estacionamiento de Visitas" [level=1] [ref=e80]
+                - paragraph [ref=e81]: Selecciona un espacio disponible para reservar
+              - button "report_problem Reportar Problema" [ref=e82]:
+                - generic [ref=e83]: report_problem
+                - generic [ref=e84]: Reportar Problema
+            - generic [ref=e85]:
+              - generic [ref=e88]: Disponible
+              - generic [ref=e91]: Ocupado
+              - generic [ref=e94]: Reservado
+              - generic [ref=e97]: Mi Reserva
+            - generic [ref=e98]:
+              - generic [ref=e100]: Realtime activo
+              - generic [ref=e102]:
+                - generic [ref=e104] [cursor=pointer]:
+                  - generic [ref=e107]: check_circle
+                  - generic [ref=e110]: LIBRE
+                  - generic [ref=e111]:
+                    - heading "A1" [level=3] [ref=e112]
+                    - paragraph [ref=e114]: Disponible
+                - generic [ref=e116] [cursor=pointer]:
+                  - generic [ref=e119]: check_circle
+                  - generic [ref=e122]: LIBRE
+                  - generic [ref=e123]:
+                    - heading "A2" [level=3] [ref=e124]
+                    - paragraph [ref=e126]: Disponible
+                - generic [ref=e128] [cursor=pointer]:
+                  - generic [ref=e131]: check_circle
+                  - generic [ref=e134]: LIBRE
+                  - generic [ref=e135]:
+                    - heading "A3" [level=3] [ref=e136]
+                    - paragraph [ref=e138]: Disponible
+                - generic [ref=e140] [cursor=pointer]:
+                  - generic [ref=e143]: check_circle
+                  - generic [ref=e146]: LIBRE
+                  - generic [ref=e147]:
+                    - heading "B1" [level=3] [ref=e148]
+                    - paragraph [ref=e150]: Disponible
+                - generic [ref=e152] [cursor=pointer]:
+                  - generic [ref=e155]: check_circle
+                  - generic [ref=e158]: LIBRE
+                  - generic [ref=e159]:
+                    - heading "B2" [level=3] [ref=e160]
+                    - paragraph [ref=e162]: Disponible
+                - generic [ref=e164] [cursor=pointer]:
+                  - generic [ref=e167]: check_circle
+                  - generic [ref=e170]: LIBRE
+                  - generic [ref=e171]:
+                    - heading "V1" [level=3] [ref=e172]
+                    - paragraph [ref=e174]: Disponible
+                - generic [ref=e176] [cursor=pointer]:
+                  - generic [ref=e179]: check_circle
+                  - generic [ref=e182]: LIBRE
+                  - generic [ref=e183]:
+                    - heading "V10" [level=3] [ref=e184]
+                    - paragraph [ref=e186]: Disponible
+                - generic [ref=e188] [cursor=pointer]:
+                  - generic [ref=e191]: check_circle
+                  - generic [ref=e194]: LIBRE
+                  - generic [ref=e195]:
+                    - heading "V2" [level=3] [ref=e196]
+                    - paragraph [ref=e198]: Disponible
+                - generic [ref=e200] [cursor=pointer]:
+                  - generic [ref=e203]: check_circle
+                  - generic [ref=e206]: LIBRE
+                  - generic [ref=e207]:
+                    - heading "V3" [level=3] [ref=e208]
+                    - paragraph [ref=e210]: Disponible
+                - generic [ref=e212] [cursor=pointer]:
+                  - generic [ref=e215]: check_circle
+                  - generic [ref=e218]: LIBRE
+                  - generic [ref=e219]:
+                    - heading "V4" [level=3] [ref=e220]
+                    - paragraph [ref=e222]: Disponible
+                - generic [ref=e224] [cursor=pointer]:
+                  - generic [ref=e227]: check_circle
+                  - generic [ref=e230]: LIBRE
+                  - generic [ref=e231]:
+                    - heading "V5" [level=3] [ref=e232]
+                    - paragraph [ref=e234]: Disponible
+                - generic [ref=e236] [cursor=pointer]:
+                  - generic [ref=e239]: check_circle
+                  - generic [ref=e242]: LIBRE
+                  - generic [ref=e243]:
+                    - heading "V6" [level=3] [ref=e244]
+                    - paragraph [ref=e246]: Disponible
+                - generic [ref=e248] [cursor=pointer]:
+                  - generic [ref=e251]: check_circle
+                  - generic [ref=e254]: LIBRE
+                  - generic [ref=e255]:
+                    - heading "V7" [level=3] [ref=e256]
+                    - paragraph [ref=e258]: Disponible
+                - generic [ref=e260] [cursor=pointer]:
+                  - generic [ref=e263]: check_circle
+                  - generic [ref=e266]: LIBRE
+                  - generic [ref=e267]:
+                    - heading "V8" [level=3] [ref=e268]
+                    - paragraph [ref=e270]: Disponible
+                - generic [ref=e272] [cursor=pointer]:
+                  - generic [ref=e275]: check_circle
+                  - generic [ref=e278]: LIBRE
+                  - generic [ref=e279]:
+                    - heading "V9" [level=3] [ref=e280]
+                    - paragraph [ref=e282]: Disponible
+  - button "Open Next.js Dev Tools" [ref=e288] [cursor=pointer]:
+    - img [ref=e289]
+  - alert [ref=e293]
+```
