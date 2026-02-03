@@ -2,9 +2,143 @@
 
 import { createServerComponentClient } from '@/lib/supabase/server';
 import { ValidationService } from './validation-service';
-import { TablesInsert } from '@/types/supabase';
+import { TablesInsert, Tables } from '@/types/supabase';
 import { revalidatePath } from 'next/cache';
 import { awardXP } from '@/app/actions/gamification';
+
+// ============================================================
+// TYPES
+// ============================================================
+
+export interface TimeSlot {
+  start: Date;
+  end: Date;
+  durationMinutes: number;
+}
+
+// ============================================================
+// SLOT CALCULATION
+// ============================================================
+
+/**
+ * Calculates available time slots for a parking spot on a given day.
+ * Returns gaps between existing bookings where new reservations can be made.
+ */
+export async function getAvailableSlots(
+  spotId: string,
+  date: Date = new Date()
+): Promise<{ success: boolean; slots: TimeSlot[]; bookings: Tables<'bookings'>[]; message?: string }> {
+  const supabase = await createServerComponentClient();
+
+  // Define day boundaries
+  const dayStart = new Date(date);
+  dayStart.setHours(0, 0, 0, 0);
+
+  const dayEnd = new Date(date);
+  dayEnd.setHours(23, 59, 59, 999);
+
+  // Current time (quantized to 15 min)
+  const now = new Date();
+  const currentMinutes = now.getMinutes();
+  const quantizedMinutes = Math.ceil(currentMinutes / 15) * 15;
+  now.setMinutes(quantizedMinutes, 0, 0);
+
+  // Earliest possible start: max of (now, dayStart)
+  const earliestStart = now > dayStart ? now : dayStart;
+
+  // Fetch all bookings for this spot on this day
+  const { data: bookings, error } = await supabase
+    .from('bookings')
+    .select('*')
+    .eq('spot_id', spotId)
+    .gte('end_time', earliestStart.toISOString())
+    .lte('start_time', dayEnd.toISOString())
+    .in('status', ['confirmed', 'active'])
+    .order('start_time', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching bookings for slots:', error);
+    return { success: false, slots: [], bookings: [], message: 'Error al obtener reservas.' };
+  }
+
+  const slots: TimeSlot[] = [];
+  let cursor = earliestStart;
+
+  // Calculate gaps between bookings
+  for (const booking of bookings || []) {
+    const bookingStart = new Date(booking.start_time);
+    const bookingEnd = new Date(booking.end_time);
+
+    // If there's a gap before this booking
+    if (bookingStart > cursor) {
+      const durationMinutes = Math.round((bookingStart.getTime() - cursor.getTime()) / (1000 * 60));
+      if (durationMinutes >= 15) { // Minimum 15 min slot
+        slots.push({
+          start: new Date(cursor),
+          end: new Date(bookingStart),
+          durationMinutes
+        });
+      }
+    }
+
+    // Move cursor past this booking
+    if (bookingEnd > cursor) {
+      cursor = bookingEnd;
+    }
+  }
+
+  // Add final slot from last booking to end of day
+  if (cursor < dayEnd) {
+    const durationMinutes = Math.round((dayEnd.getTime() - cursor.getTime()) / (1000 * 60));
+    if (durationMinutes >= 15) {
+      slots.push({
+        start: new Date(cursor),
+        end: dayEnd,
+        durationMinutes
+      });
+    }
+  }
+
+  return { success: true, slots, bookings: bookings || [] };
+}
+
+/**
+ * Checks if a proposed booking overlaps with any existing bookings.
+ * Returns the conflicting booking if found.
+ */
+export async function checkBookingConflict(
+  spotId: string,
+  startTime: Date,
+  endTime: Date,
+  excludeBookingId?: string
+): Promise<{ hasConflict: boolean; conflictingBooking?: Tables<'bookings'> }> {
+  const supabase = await createServerComponentClient();
+
+  // Query for overlapping bookings using PostgreSQL range overlap
+  let query = supabase
+    .from('bookings')
+    .select('*')
+    .eq('spot_id', spotId)
+    .in('status', ['confirmed', 'active'])
+    .lt('start_time', endTime.toISOString())   // Booking starts before our end
+    .gt('end_time', startTime.toISOString());   // Booking ends after our start
+
+  if (excludeBookingId) {
+    query = query.neq('id', excludeBookingId);
+  }
+
+  const { data: conflicting, error } = await query.limit(1).single();
+
+  if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found (expected)
+    console.error('Error checking booking conflict:', error);
+  }
+
+  return {
+    hasConflict: !!conflicting,
+    conflictingBooking: conflicting || undefined
+  };
+}
+
 
 export async function createBooking(formData: FormData) {
   const supabase = await createServerComponentClient();
@@ -55,6 +189,19 @@ export async function createBooking(formData: FormData) {
   if (!validationResult.success) {
     return validationResult;
   }
+
+  // Check for time conflicts with existing bookings
+  const conflictResult = await checkBookingConflict(spotId, startTime, endTime);
+  if (conflictResult.hasConflict && conflictResult.conflictingBooking) {
+    const conflictStart = new Date(conflictResult.conflictingBooking.start_time);
+    const conflictEnd = new Date(conflictResult.conflictingBooking.end_time);
+    const formatTime = (d: Date) => d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+    return {
+      success: false,
+      message: `Tu reserva interfiere con otra existente (${formatTime(conflictStart)} - ${formatTime(conflictEnd)}). Por favor selecciona otro horario.`
+    };
+  }
+
 
   // Prepare booking data
   const newBooking: TablesInsert<'bookings'> = {

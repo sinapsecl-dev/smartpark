@@ -254,6 +254,7 @@ const ParkingGrid: React.FC<ParkingGridProps> = ({ userUnitId }) => {
             >
               <BookingForm
                 spot={selectedSpot}
+                userUnitId={userUnitId}
                 onClose={closeDialog}
                 existingBooking={editingBooking}
                 futureBookings={currentSpotFutureBookings}
