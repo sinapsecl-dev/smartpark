@@ -40,6 +40,10 @@
     "vaul": "^1.1.2",
     "zod": "^4.3.5"
   },
+  "overrides": {
+    "react": "$react",
+    "react-dom": "$react-dom"
+  },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
     "@tailwindcss/postcss": "^4",
