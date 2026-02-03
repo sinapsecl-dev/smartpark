@@ -110,6 +110,13 @@ export function GamificationListener() {
                 const def = defMap.get(achievement.achievement_id) as any;
 
                 if (def) {
+                    // Check if already shown in this session (prevent duplicates on reload)
+                    const storageKey = `achievement_toast_${achievement.achievement_id}`;
+                    if (typeof window !== 'undefined' && sessionStorage.getItem(storageKey)) {
+                        console.log("[GamificationListener] Toast already shown in session:", def.name);
+                        continue;
+                    }
+
                     console.log("[GamificationListener] Scheduling toast for:", def.name, "in", (i * 5500 + 500), "ms");
                     // Delay each toast by 5.5 seconds to ensure previous one finishes (5s autoclose + 0.5s buffer)
                     setTimeout(() => {
@@ -122,6 +129,11 @@ export function GamificationListener() {
                             xpBonus: def.xp_bonus,
                             requirement: { type: 'recent_check' }
                         });
+
+                        // Mark as shown
+                        if (typeof window !== 'undefined') {
+                            sessionStorage.setItem(storageKey, 'true');
+                        }
                     }, i * 5500 + 500); // Start after 500ms, then 5.5s apart
                 }
             }

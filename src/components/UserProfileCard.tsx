@@ -171,7 +171,7 @@ export function UserProfileCard({ userId, initialEmail }: UserProfileCardProps) 
     return (
         <div className="bg-gradient-to-br from-white via-white to-sky-50 dark:from-gray-800 dark:via-gray-800 dark:to-sky-900/20 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
             {/* User Info Section */}
-            <div className="p-4 sm:p-5">
+            <Link href="/profile" className="block p-4 sm:p-5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer">
                 <div className="flex items-center gap-4">
                     {/* Avatar with Level Badge */}
                     <div className="relative flex-shrink-0">
@@ -206,7 +206,7 @@ export function UserProfileCard({ userId, initialEmail }: UserProfileCardProps) 
                 <div className="mt-4">
                     <XPProgressBarCompact currentXP={stats.totalXP} level={stats.level} />
                 </div>
-            </div>
+            </Link>
 
             {/* Quick Stats Grid - Mobile Optimized */}
             <div className="grid grid-cols-2 border-t border-gray-100 dark:border-gray-700">

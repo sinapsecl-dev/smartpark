@@ -1,7 +1,7 @@
 {
-  "name": "SmartParking - Terrazas del Sol V",
-  "short_name": "SmartParking",
-  "description": "Reserva y gestiona estacionamientos de visita en tu condominio",
+  "name": "SinaPark - Gestión de Estacionamientos",
+  "short_name": "SinaPark",
+  "description": "Plataforma inteligente para la gestión de estacionamientos de visita en condominios",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",

@@ -225,34 +225,7 @@ function LoginPageContent() {
     }
   }, [supabase]);
 
-  const handleMagicLinkSignIn = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const email = getValues('email');
-      if (!email) {
-        setError('Please enter your email to receive a Magic Link.');
-        setLoading(false);
-        return;
-      }
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
 
-      if (error) {
-        setError(error.message);
-      } else {
-        alert('Check your email for the Magic Link!');
-      }
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred.');
-    } finally {
-      setLoading(false);
-    }
-  }, [supabase, getValues]);
 
   if (loading) {
     return <ParkingLoader fullScreen text="Iniciando sesión..." />;
@@ -391,20 +364,7 @@ function LoginPageContent() {
               Iniciar con Google
             </Button>
 
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleMagicLinkSignIn}
-              className="w-full h-12"
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <span className="material-symbols-outlined text-[20px] text-primary mr-2">auto_fix_high</span>
-              )}
-              Ingresar con Magic Link
-            </Button>
+
           </div>
 
           <div className="mt-8 text-center">

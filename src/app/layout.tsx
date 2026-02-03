@@ -24,8 +24,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "SmartParking - Terrazas del Sol V",
-  description: "Autonomous parking management for condominiums.",
+  title: "SinaPark - Gestión de Estacionamientos",
+  description: "Plataforma inteligente para la gestión de estacionamientos de visita en condominios.",
   manifest: "/manifest.json",
 };
 
