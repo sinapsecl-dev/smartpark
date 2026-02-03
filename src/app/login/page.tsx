@@ -113,10 +113,10 @@ function LoginPageContent() {
           // Clear the URL params/hash
           window.history.replaceState(null, '', window.location.pathname);
 
-          if (!userProfile || !userProfile.profile_completed) {
-            router.push('/complete-profile');
-          } else if (userProfile.role === 'admin') {
+          if (userProfile.role === 'admin') {
             router.push('/admin');
+          } else if (!userProfile || !userProfile.profile_completed) {
+            router.push('/complete-profile');
           } else {
             router.push('/dashboard');
           }
@@ -188,10 +188,10 @@ function LoginPageContent() {
         }
 
         // Redirect based on profile completion and role
-        if (!userProfile?.profile_completed) {
-          router.push('/complete-profile');
-        } else if (userProfile?.role === 'admin') {
+        if (userProfile?.role === 'admin') {
           router.push('/admin');
+        } else if (!userProfile?.profile_completed) {
+          router.push('/complete-profile');
         } else {
           router.push('/dashboard');
         }

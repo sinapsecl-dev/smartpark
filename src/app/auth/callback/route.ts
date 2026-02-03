@@ -84,6 +84,11 @@ export async function GET(request: Request) {
           return NextResponse.redirect(`${baseUrl}/login?error=suspended`);
         }
 
+        // Redirect based on role (Admin bypasses profile check)
+        if (userProfile.role === 'admin') {
+          return NextResponse.redirect(`${baseUrl}/admin`);
+        }
+
         // If user hasn't completed their profile, redirect to complete-profile
         if (!userProfile.profile_completed) {
           return NextResponse.redirect(`${baseUrl}/complete-profile`);
@@ -96,9 +101,7 @@ export async function GET(request: Request) {
           });
 
         // Redirect based on role
-        if (userProfile.role === 'admin') {
-          return NextResponse.redirect(`${baseUrl}/admin`);
-        }
+
       }
     } catch (error) {
       console.error('Error during Supabase session exchange:', error);
