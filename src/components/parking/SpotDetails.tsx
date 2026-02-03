@@ -10,6 +10,7 @@ import {
   Clock, Car, Home, Calendar, Trash2, Edit3, AlertTriangle,
   CheckCircle2, Timer, ChevronRight, X, Loader2
 } from 'lucide-react';
+import ReportProblemDialog from './ReportProblemDialog';
 
 type Spot = Tables<'spots'>;
 type Booking = Tables<'bookings'>;
@@ -221,6 +222,7 @@ const SpotDetails: React.FC<SpotDetailsProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
 
   if (!spot) return null;
 

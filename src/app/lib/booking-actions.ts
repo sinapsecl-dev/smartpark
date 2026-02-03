@@ -30,21 +30,26 @@ export async function getAvailableSlots(
 ): Promise<{ success: boolean; slots: TimeSlot[]; bookings: Tables<'bookings'>[]; message?: string }> {
   const supabase = await createServerComponentClient();
 
-  // Define day boundaries
-  const dayStart = new Date(date);
+  // Use Chile timezone for consistent day boundaries
+  const CHILE_TZ = 'America/Santiago';
+
+  // Get current time in Chile timezone
+  const nowChile = new Date(new Date().toLocaleString('en-US', { timeZone: CHILE_TZ }));
+
+  // Define day boundaries in Chile timezone
+  const dayStart = new Date(nowChile);
   dayStart.setHours(0, 0, 0, 0);
 
-  const dayEnd = new Date(date);
+  const dayEnd = new Date(nowChile);
   dayEnd.setHours(23, 59, 59, 999);
 
   // Current time (quantized to 15 min)
-  const now = new Date();
-  const currentMinutes = now.getMinutes();
+  const currentMinutes = nowChile.getMinutes();
   const quantizedMinutes = Math.ceil(currentMinutes / 15) * 15;
-  now.setMinutes(quantizedMinutes, 0, 0);
+  nowChile.setMinutes(quantizedMinutes, 0, 0);
 
   // Earliest possible start: max of (now, dayStart)
-  const earliestStart = now > dayStart ? now : dayStart;
+  const earliestStart = nowChile > dayStart ? nowChile : dayStart;
 
   // Fetch all bookings for this spot on this day
   const { data: bookings, error } = await supabase
