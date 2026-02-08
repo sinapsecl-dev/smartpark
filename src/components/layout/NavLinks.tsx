@@ -28,6 +28,7 @@ const adminLinks: NavLink[] = [
   { href: '/admin/settings', label: 'Configuración', icon: 'settings', description: 'Reglas y ajustes' },
   { href: '/admin/units', label: 'Unidades', icon: 'apartment', description: 'Gestión de unidades' },
   { href: '/admin/users', label: 'Usuarios', icon: 'group', description: 'Gestión de residentes' },
+  { href: '/admin/notifications', label: 'Notificaciones', icon: 'campaign', description: 'Enviar mensajes' },
   { href: '/admin/audit-logs', label: 'Auditoría', icon: 'history', description: 'Registro de actividades' },
 ];
 

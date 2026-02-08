@@ -1,0 +1,5 @@
+﻿
+> smartpark_app@0.1.0 build
+> next build --webpack
+
+  Suggestion: If you intended to restart next build, terminate the other process, and then try again.
