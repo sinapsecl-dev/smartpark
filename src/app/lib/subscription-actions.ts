@@ -31,7 +31,7 @@ export async function saveSubscription(subscription: PushSubscriptionJSON) {
         .upsert({
             user_id: user.id,
             endpoint: subscription.endpoint,
-            auth: subscription.keys.auth,
+            auth_key: subscription.keys.auth,
             p256dh: subscription.keys.p256dh,
             updated_at: new Date().toISOString()
         } as any, { onConflict: 'endpoint' });
