@@ -26,7 +26,7 @@ export async function sendPushNotification(userId: string, payload: { title: str
         const pushSubscription = {
             endpoint: sub.endpoint,
             keys: {
-                auth: sub.auth,
+                auth: sub.auth_key,
                 p256dh: sub.p256dh
             }
         };
