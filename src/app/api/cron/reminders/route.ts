@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { sendPushNotification } from '@/app/lib/push-notification-actions';
+import { sendNotification } from '@/lib/server/web-push';
 
 // Initialize Supabase Admin Client for Cron Job (Server-side only)
 const supabaseAdmin = createClient(
@@ -94,20 +94,44 @@ export async function GET(req: NextRequest) {
                 });
 
                 // 4. Send Push to ALL unit members
-                const notifications = unitMembers.map(member =>
-                    sendPushNotification(
-                        member.id,
-                        {
-                            title: '⏳ Reserva por finalizar',
-                            body: `La reserva de tu unidad finaliza a las ${endTimeFormatted}. Por favor libera el espacio a tiempo.`,
-                            url: '/dashboard',
-                            type: 'warning'
-                        }
-                    )
-                );
+                const memberIds = unitMembers.map(m => m.id);
 
-                await Promise.all(notifications);
-                sentCount += unitMembers.length;
+                // Get subscriptions for all unit members
+                const { data: subscriptions } = await supabaseAdmin
+                    .from('push_subscriptions')
+                    .select('*')
+                    .in('user_id', memberIds);
+
+                if (subscriptions && subscriptions.length > 0) {
+                    const payload = JSON.stringify({
+                        title: '⏳ Reserva por finalizar',
+                        body: `La reserva de tu unidad finaliza a las ${endTimeFormatted}. Por favor libera el espacio a tiempo.`,
+                        url: '/dashboard',
+                        type: 'warning'
+                    });
+
+                    const notifications = subscriptions.map((sub: any) => {
+                        const pushSubscription = {
+                            endpoint: sub.endpoint,
+                            keys: {
+                                auth: sub.auth_key, // Ensure this matches DB column name
+                                p256dh: sub.p256dh
+                            }
+                        };
+
+                        // Use the mock sendNotification directly
+                        return sendNotification(pushSubscription, payload)
+                            .catch(async (error: any) => {
+                                console.error('Error sending push in cron:', error);
+                                if (error.statusCode === 410 || error.statusCode === 404) {
+                                    await supabaseAdmin.from('push_subscriptions').delete().eq('id', sub.id);
+                                }
+                            });
+                    });
+
+                    await Promise.all(notifications);
+                    sentCount += subscriptions.length;
+                }
             }
 
             // 5. Mark reminder as sent
