@@ -62,14 +62,19 @@ const DURATION_OPTIONS = [
 // SCHEMA
 // ============================================================
 
-const bookingSchema = z.object({
+const getBookingSchema = (isAccessible: boolean) => z.object({
   license_plate: z.string().min(1, 'La patente es obligatoria.').max(10, 'Patente inválida.'),
   start_time: z.string().min(1, 'La hora de inicio es obligatoria.'),
   end_time: z.string().min(1, 'La hora de fin es obligatoria.'),
   spot_id: z.string().min(1, 'El ID del spot es obligatorio.'),
+  disability_credential: z
+    .custom<FileList>()
+    .refine((files) => !isAccessible || (files && files.length === 1), 'Debe subir su credencial para este estacionamiento.')
+    .refine((files) => !files || files.length === 0 || files[0].size <= 5 * 1024 * 1024, 'El archivo no debe superar los 5MB.')
+    .optional(),
 });
 
-type BookingFormInputs = z.infer<typeof bookingSchema>;
+type BookingFormInputs = z.infer<ReturnType<typeof getBookingSchema>>;
 
 // ============================================================
 // COMPONENT PROPS
@@ -232,7 +237,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({ spotName, licensePlate,
             </div>
             <span className="font-bold text-[#0d171c] dark:text-white font-mono tracking-wider uppercase">{licensePlate}</span>
           </div>
-          <span className="text-primary font-bold text-sm bg-white dark:bg-primary/20 px-2 py-1 rounded-md shadow-sm">
+          <span className="text-white bg-primary px-2.5 py-1 rounded-md shadow-sm text-sm font-bold">
             {durationString}
           </span>
         </div>
@@ -267,6 +272,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, userUnitId, onClose, ex
   const [allBookings, setAllBookings] = useState<BookingWithUnit[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [isLoadingSlots, setIsLoadingSlots] = useState(true);
+  const [maxBookingAheadMinutes, setMaxBookingAheadMinutes] = useState<number>(60);
 
   // Time selection (within selected slot)
   const [selectedStartTime, setSelectedStartTime] = useState<Date | null>(null);
@@ -278,6 +284,9 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, userUnitId, onClose, ex
       setIsLoadingSlots(true);
       const result = await getAvailableSlots(spot.id);
       if (result.success) {
+        // Store max booking ahead limit
+        setMaxBookingAheadMinutes(result.maxBookingAheadMinutes);
+
         // Convert ISO strings back to Dates (server actions serialize Dates)
         const slots = result.slots.map(s => ({
           start: new Date(s.start),
@@ -319,11 +328,29 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, userUnitId, onClose, ex
 
   // ========== COMPUTED VALUES ==========
 
-  // Generate start time options within selected slot
+  // Calculate max allowed start time based on config
+  const maxAllowedStartTime = useMemo(() => {
+    const now = new Date();
+    return new Date(now.getTime() + maxBookingAheadMinutes * 60 * 1000);
+  }, [maxBookingAheadMinutes]);
+
+  // Generate start time options within selected slot (limited by max ahead time)
   const startTimeOptions = useMemo(() => {
     if (!selectedSlot) return [];
-    return generateTimeSlots(selectedSlot.start, selectedSlot.end);
-  }, [selectedSlot]);
+    const allTimes = generateTimeSlots(selectedSlot.start, selectedSlot.end);
+    // Filter to only include times within the allowed window
+    return allTimes.filter(time => time <= maxAllowedStartTime);
+  }, [selectedSlot, maxAllowedStartTime]);
+
+  // Format the max ahead limit for display
+  const maxAheadLabel = useMemo(() => {
+    if (maxBookingAheadMinutes >= 60) {
+      const hours = Math.floor(maxBookingAheadMinutes / 60);
+      const mins = maxBookingAheadMinutes % 60;
+      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+    }
+    return `${maxBookingAheadMinutes} min`;
+  }, [maxBookingAheadMinutes]);
 
   // Max duration based on selected start time and slot end
   const maxDuration = useMemo(() => {
@@ -339,6 +366,8 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, userUnitId, onClose, ex
   }, [selectedStartTime, selectedDuration]);
 
   // ========== FORM SETUP ==========
+  const validationSchema = useMemo(() => getBookingSchema(spot.is_accessible), [spot.is_accessible]);
+
   const {
     register,
     handleSubmit,
@@ -347,7 +376,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, userUnitId, onClose, ex
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<BookingFormInputs>({
-    resolver: zodResolver(bookingSchema),
+    resolver: zodResolver(validationSchema),
     defaultValues: {
       spot_id: spot.id,
       start_time: '',
@@ -421,6 +450,11 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, userUnitId, onClose, ex
     formData.append('end_time', data.end_time);
     formData.append('spot_id', data.spot_id);
 
+    // Append file if present
+    if (data.disability_credential && data.disability_credential.length > 0) {
+      formData.append('disability_credential', data.disability_credential[0]);
+    }
+
     localStorage.setItem('last_license_plate', data.license_plate);
 
     let result;
@@ -453,7 +487,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, userUnitId, onClose, ex
     <form onSubmit={handleSubmit(onSubmit)} className="px-1">
       <div className="flex flex-col gap-6">
         {/* License Plate Input */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 mt-1">
           <label htmlFor="license_plate" className="text-sm font-bold text-[#0d171c] dark:text-white flex items-center gap-2">
             <Car className="w-5 h-5 text-primary" />
             Patente del Vehículo
@@ -481,6 +515,27 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, userUnitId, onClose, ex
           )}
         </div>
 
+        {/* Accessible Credential Upload */}
+        {spot.is_accessible && (
+          <div className="flex flex-col gap-3">
+            <label htmlFor="disability_credential" className="text-sm font-bold text-[#0d171c] dark:text-white flex items-center gap-2">
+              <span className="material-symbols-outlined text-blue-500">accessible</span>
+              Credencial de Discapacidad
+              <span className="text-xs font-normal text-gray-500">(Obligatorio para este uso)</span>
+            </label>
+            <input
+              id="disability_credential"
+              type="file"
+              accept="image/*,.pdf"
+              {...register('disability_credential', { required: 'Debes subir tu credencial.' })}
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-400"
+            />
+            {errors.disability_credential && (
+              <p className="text-sm text-red-500 text-center">{errors.disability_credential.message as string}</p>
+            )}
+          </div>
+        )}
+
         {/* Time Slot Selection (New!) */}
         {!isEditMode && (
           <div className="flex flex-col gap-3">
@@ -493,13 +548,28 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, userUnitId, onClose, ex
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
               </div>
             ) : (
-              <TimeSlotPicker
-                availableSlots={availableSlots}
-                existingBookings={allBookings}
-                userUnitId={userUnitId}
-                selectedSlot={selectedSlot}
-                onSelectSlot={handleSlotSelect}
-              />
+              <>
+                <TimeSlotPicker
+                  availableSlots={availableSlots}
+                  existingBookings={allBookings}
+                  userUnitId={userUnitId}
+                  selectedSlot={selectedSlot}
+                  onSelectSlot={handleSlotSelect}
+                />
+                {/* Time limit info message */}
+                {maxBookingAheadMinutes < 1440 && (
+                  <m.div
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800"
+                  >
+                    <Clock className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                    <p className="text-xs text-blue-700 dark:text-blue-300">
+                      Puedes reservar hasta <span className="font-semibold">{maxAheadLabel}</span> en adelante
+                    </p>
+                  </m.div>
+                )}
+              </>
             )}
           </div>
         )}
@@ -596,7 +666,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ spot, userUnitId, onClose, ex
         )}
 
         {/* Submit Button */}
-        <div className="sticky bottom-0 -mx-4 px-4 pt-4 pb-2 bg-gradient-to-t from-white via-white to-transparent dark:from-[#152028] dark:via-[#152028] dark:to-transparent mt-2">
+        <div className="sticky bottom-0 -mx-4 px-4 pt-4 pb-2 bg-background border-t border-gray-100 dark:border-gray-800 mt-4 z-10">
           <Button
             type="submit"
             disabled={!licensePlateWatch || !selectedDuration || !selectedSlot || isSubmitting}

@@ -3,6 +3,8 @@ import { createServerComponentClient } from '@/lib/supabase/server';
 import { Enums } from '@/types/supabase';
 import NavLinks from './NavLinks';
 import AuthButton from '@/components/shared/AuthButton';
+import CondominiumSwitcher from '@/components/admin/CondominiumSwitcher';
+import NavbarNotification from '@/components/notifications/NavbarNotification';
 
 export default async function Navbar() {
   const supabase = await createServerComponentClient();
@@ -10,18 +12,20 @@ export default async function Navbar() {
 
   let userHouseNumber: string | null = null;
   let userRole: Enums<'user_role'> | null = null;
+  let currentCondominiumId: string | null = null;
 
   if (user) {
     const { data: userProfile, error: profileError } = await supabase
       .from('users')
-      .select('role, units(name)')
+      .select('role, condominium_id, units(name)')
       .eq('id', user.id)
       .single();
 
     if (userProfile) {
       userRole = userProfile.role;
+      currentCondominiumId = userProfile.condominium_id;
       if (userProfile.units) {
-        // @ts-ignore - Supabase type inference for joined tables can be tricky
+        // @ts-ignore
         userHouseNumber = userProfile.units.name;
       }
     } else if (profileError) {
@@ -29,7 +33,8 @@ export default async function Navbar() {
     }
   }
 
-  const isAdmin = userRole === 'admin';
+  const isAdmin = userRole === 'admin' || userRole === 'developer';
+  const isDeveloper = userRole === 'developer';
 
   return (
     <header className="w-full bg-white dark:bg-[#1a262d] border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50">
@@ -55,8 +60,8 @@ export default async function Navbar() {
                 SinaPark
               </h1>
               {isAdmin && (
-                <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">
-                  Admin
+                <span className={`text-[10px] font-semibold uppercase tracking-wider ${isDeveloper ? 'text-purple-600' : 'text-primary'}`}>
+                  {isDeveloper ? 'Dev' : 'Admin'}
                 </span>
               )}
             </div>
@@ -72,7 +77,19 @@ export default async function Navbar() {
           </div>
 
           {/* Right side */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1 sm:gap-2">
+            {/* Notifications */}
+            <div className="block">
+              <NavbarNotification />
+            </div>
+
+            {/* Developer Switcher */}
+            {isDeveloper && (
+              <div className="hidden md:block">
+                <CondominiumSwitcher currentCondominiumId={currentCondominiumId} />
+              </div>
+            )}
+
             {/* Desktop User Info */}
             {user && (
               <div className="hidden md:flex items-center gap-3">
@@ -80,11 +97,11 @@ export default async function Navbar() {
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
                   <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
                     <span className="material-symbols-outlined text-primary text-[14px]">
-                      {isAdmin ? 'admin_panel_settings' : 'home'}
+                      {isAdmin ? (isDeveloper ? 'code' : 'admin_panel_settings') : 'home'}
                     </span>
                   </div>
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-200 max-w-[120px] truncate">
-                    {isAdmin ? 'Admin' : userHouseNumber || 'Residente'}
+                    {isAdmin ? (isDeveloper ? 'Developer' : 'Admin') : userHouseNumber || 'Residente'}
                   </span>
                 </div>
 

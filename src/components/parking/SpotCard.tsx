@@ -39,6 +39,16 @@ const SpotCard: React.FC<SpotCardProps> = ({
   let mainTextColorClass = 'text-emerald-600 dark:text-emerald-400';
   let statusText = 'Disponible';
 
+  // Override default colors if accessible (and status is free)
+  if (spot.is_accessible && status === 'free') {
+    icon = 'accessible';
+    iconColorClass = 'text-blue-600 dark:text-blue-400';
+    bgColorClass = 'bg-blue-100';
+    borderColorClass = 'border-blue-200 dark:border-blue-900/50';
+    mainBgClass = 'bg-blue-50 dark:bg-blue-900/10';
+    mainTextColorClass = 'text-blue-600 dark:text-blue-400';
+  }
+
   const now = new Date();
 
   // Check if user has a booking for this spot (current or future)
@@ -141,7 +151,7 @@ const SpotCard: React.FC<SpotCardProps> = ({
         'cursor-pointer hover:shadow-lg hover:-translate-y-1 touch-manipulation',
         isUserBooking && 'ring-2 ring-primary ring-offset-2 ring-offset-white dark:ring-offset-[#101c22]'
       )}
-      onClick={() => onSpotClick(spot, currentBooking)}
+      onClick={() => onSpotClick(spot, currentBooking || userFutureBooking || null)}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
@@ -171,8 +181,20 @@ const SpotCard: React.FC<SpotCardProps> = ({
         mainBgClass
       )}>
         {status === 'free' && (
-          <div className="w-1/2 h-2/3 border-2 border-dashed border-emerald-300 dark:border-emerald-700 rounded-lg flex items-center justify-center">
-            <span className={clsx("font-bold text-xs opacity-50", mainTextColorClass)}>LIBRE</span>
+          <div className={clsx(
+            "w-1/2 h-2/3 border-2 border-dashed rounded-lg flex items-center justify-center flex-col gap-1",
+            spot.is_accessible
+              ? "border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-900/20"
+              : "border-emerald-300 dark:border-emerald-700"
+          )}>
+            {spot.is_accessible ? (
+              <>
+                <span className="material-symbols-outlined text-blue-500 text-3xl">accessible</span>
+                <span className="font-bold text-[10px] text-blue-600 dark:text-blue-400 uppercase">LIBRE</span>
+              </>
+            ) : (
+              <span className={clsx("font-bold text-xs opacity-50", mainTextColorClass)}>LIBRE</span>
+            )}
           </div>
         )}
         {(status === 'occupied' || status === 'urgent') && (
@@ -198,7 +220,9 @@ const SpotCard: React.FC<SpotCardProps> = ({
         borderColorClass.replace('border-', 'border-t-'),
         "bg-white dark:bg-[#1e2a32]"
       )}>
-        <h3 className="text-[#0d171c] dark:text-white text-base sm:text-lg font-bold">{spot.name}</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-[#0d171c] dark:text-white text-base sm:text-lg font-bold truncate">{spot.name}</h3>
+        </div>
         <div className="flex items-center justify-between mt-1 gap-2">
           <p className={clsx("text-[10px] sm:text-xs font-semibold uppercase", mainTextColorClass)}>
             {statusText}

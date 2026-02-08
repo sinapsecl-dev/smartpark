@@ -488,40 +488,27 @@ const SpotDetails: React.FC<SpotDetailsProps> = ({
         </div>
       )}
 
-      {/* Report Issue Button (for any occupied/reserved spots) */}
-      {(booking || futureBookings.length > 0) && (
+      {/* Report Issue Button (Always visible) */}
+      {(!!booking || !booking) && (
         <Button
           variant="outline"
           onClick={() => setIsReportDialogOpen(true)}
           className="w-full h-11 gap-2 text-amber-600 border-amber-200 hover:bg-amber-50 dark:hover:bg-amber-900/20"
         >
           <AlertTriangle className="w-4 h-4" />
-          Reportar Problema
+          {booking ? 'Reportar Problema' : 'Reportar Uso Indebido'}
         </Button>
       )}
 
       {/* Conditional New Reservation Button */}
       {availability.canReserve ? (
-        <>
-          <Button
-            onClick={onNewBooking}
-            className="w-full h-12 gap-2 text-base font-semibold"
-          >
-            <Calendar className="w-5 h-5" />
-            Nueva Reserva
-          </Button>
-          {/* Report for free spot being occupied */}
-          {!booking && futureBookings.length === 0 && (
-            <Button
-              variant="outline"
-              onClick={() => setIsReportDialogOpen(true)}
-              className="w-full h-10 gap-2 text-amber-600 border-amber-200 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-sm"
-            >
-              <AlertTriangle className="w-4 h-4" />
-              Reportar cupo ocupado sin reserva
-            </Button>
-          )}
-        </>
+        <Button
+          onClick={onNewBooking}
+          className="w-full h-12 gap-2 text-base font-semibold"
+        >
+          <Calendar className="w-5 h-5" />
+          Nueva Reserva
+        </Button>
       ) : (booking || futureBookings.length > 0) && (
         <div className="text-center py-3 px-4 rounded-lg bg-gray-100 dark:bg-gray-800/50">
           <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center justify-center gap-2">
@@ -536,7 +523,9 @@ const SpotDetails: React.FC<SpotDetailsProps> = ({
         isOpen={isReportDialogOpen}
         onClose={() => setIsReportDialogOpen(false)}
         spotName={`Estacionamiento ${spot.name}`}
-        isFreeSpot={!booking && futureBookings.length === 0}
+        isFreeSpot={!booking}
+        bookingId={booking?.id}
+        isUserBooking={isUserBooking}
       />
     </div>
   );

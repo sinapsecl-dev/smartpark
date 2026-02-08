@@ -18,7 +18,7 @@ export default async function AuditLogsPage() {
         .eq('id', user.id)
         .single();
 
-    if (profileError || !userProfile || userProfile.role !== 'admin') {
+    if (profileError || !userProfile || (userProfile.role !== 'admin' && userProfile.role !== 'developer')) {
         redirect('/dashboard');
     }
 

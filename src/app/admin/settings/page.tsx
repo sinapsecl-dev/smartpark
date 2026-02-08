@@ -18,28 +18,31 @@ export default async function SettingsPage() {
         .eq('id', user.id)
         .single();
 
-    if (profileError || !userProfile || userProfile.role !== 'admin') {
+    if (profileError || !userProfile || (userProfile.role !== 'admin' && userProfile.role !== 'developer')) {
         redirect('/dashboard');
     }
 
     // Fetch condominium settings
-    const { data: condominium, error: condoError } = await supabase
+    const { data: condominiumData, error: condoError } = await supabase
         .from('condominiums')
         .select('*')
         .eq('id', userProfile.condominium_id)
         .single();
+
+    const condominium = condominiumData as any;
 
     if (condoError || !condominium) {
         redirect('/admin');
     }
 
     // Fetch system rules (Fair Play rules)
-    const { data: systemRules } = await supabase
+    const { data: systemRulesResult } = await supabase
         .from('config_rules')
         .select('*');
 
     const getRuleValue = (name: string, defaultValue: number) => {
-        const rule = systemRules?.find((r) => r.rule_name === name);
+        const systemRules: any[] = systemRulesResult || [];
+        const rule = systemRules.find((r) => r.rule_name === name);
         return rule ? parseInt(rule.rule_value) : defaultValue;
     };
 
@@ -47,6 +50,7 @@ export default async function SettingsPage() {
         maxReservationDuration: getRuleValue('max_reservation_duration', condominium.max_booking_duration_hours || 4),
         cooldownPeriod: getRuleValue('cooldown_period', condominium.cooldown_period_hours || 2),
         weeklyQuotaHours: getRuleValue('weekly_quota_hours', condominium.max_parking_hours_per_week || 15),
+        maxBookingAheadMinutes: condominium.max_booking_ahead_minutes ?? 60,
     };
 
     return (

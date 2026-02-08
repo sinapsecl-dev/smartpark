@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { requestExtension } from '@/app/lib/extension-actions';
 import {
     AlertTriangle,
     X,
@@ -13,7 +14,8 @@ import {
     Shield,
     AlertCircle,
     MessageSquare,
-    Camera
+    Camera,
+    Wrench
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -42,6 +44,14 @@ const OCCUPIED_PROBLEMS = [
         title: 'Tiempo excedido',
         description: 'El vehículo no ha liberado el cupo y la reserva ya terminó',
         requiresPlate: false
+    },
+    {
+        id: 'breakdown',
+        icon: Wrench,
+        title: 'Vehículo averiado / Extensión',
+        description: 'Solicitar extensión por problemas mecánicos',
+        requiresPlate: false,
+        isExtension: true
     },
     {
         id: 'other',
@@ -85,6 +95,8 @@ interface ReportProblemDialogProps {
     onClose: () => void;
     spotName: string;
     isFreeSpot?: boolean;
+    bookingId?: string;
+    isUserBooking?: boolean;
 }
 
 // ============================================================
@@ -95,32 +107,64 @@ const ReportProblemDialog: React.FC<ReportProblemDialogProps> = ({
     isOpen,
     onClose,
     spotName,
-    isFreeSpot = false
+    isFreeSpot = false,
+    bookingId,
+    isUserBooking = false
 }) => {
     const [selectedProblem, setSelectedProblem] = useState<string | null>(null);
     const [licensePlate, setLicensePlate] = useState('');
+    const [comment, setComment] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-    const problems = isFreeSpot ? FREE_SPOT_PROBLEMS : OCCUPIED_PROBLEMS;
+    const problems = isFreeSpot
+        ? FREE_SPOT_PROBLEMS
+        : OCCUPIED_PROBLEMS.filter(p => {
+            if (p.id === 'breakdown') {
+                return isUserBooking;
+            }
+            return true;
+        });
     const selectedOption = problems.find(p => p.id === selectedProblem);
     const requiresPlate = selectedOption?.requiresPlate ?? false;
+    // @ts-ignore
+    const isExtension = selectedOption?.isExtension ?? false;
 
     const handleSubmit = async () => {
         if (!selectedProblem) return;
         if (requiresPlate && !licensePlate.trim()) return;
 
         setIsSubmitting(true);
-        // Simular envío (demo - 1.5 segundos)
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setIsSubmitting(false);
-        setIsSuccess(true);
+        setErrorMsg(null);
+
+        try {
+            if (isExtension && bookingId) {
+                const result = await requestExtension(bookingId, comment || 'Problema mecánico');
+                if (!result.success) {
+                    setErrorMsg(result.message);
+                    setIsSubmitting(false);
+                    return;
+                }
+            } else {
+                // Simular envío para otros reportes (demo - 1.5 segundos)
+                await new Promise(resolve => setTimeout(resolve, 1500));
+            }
+            setIsSubmitting(false);
+            setIsSuccess(true);
+        } catch (error) {
+            console.error(error);
+            setErrorMsg('Ocurrió un error al enviar el reporte');
+            setIsSubmitting(false);
+        }
     };
 
     const handleClose = () => {
         setSelectedProblem(null);
         setLicensePlate('');
+        setComment('');
         setIsSuccess(false);
+        setErrorMsg(null);
         onClose();
     };
 
@@ -292,12 +336,39 @@ const ReportProblemDialog: React.FC<ReportProblemDialogProps> = ({
                                                         <Camera className="w-5 h-5 text-gray-400 cursor-not-allowed" />
                                                     </div>
                                                 </div>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 text-center">
-                                                    📷 Próximamente: captura de imagen del vehículo
-                                                </p>
                                             </m.div>
                                         )}
                                     </AnimatePresence>
+
+                                    {/* Additional Comment / Extension Reason */}
+                                    <AnimatePresence>
+                                        {(selectedProblem === 'other' || selectedProblem === 'other-free' || isExtension) && (
+                                            <m.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                className="mt-4 overflow-hidden"
+                                            >
+                                                <label className="text-sm font-semibold text-[#0d171c] dark:text-white flex items-center gap-2 mb-2">
+                                                    <MessageSquare className="w-4 h-4 text-primary" />
+                                                    {isExtension ? 'Motivo de la extensión' : 'Comentarios adicionales'}
+                                                </label>
+                                                <textarea
+                                                    value={comment}
+                                                    onChange={(e) => setComment(e.target.value)}
+                                                    placeholder={isExtension ? "Describa brevemente el problema..." : "Detalles del problema..."}
+                                                    rows={3}
+                                                    className="w-full px-4 py-3 rounded-xl border-2 bg-white dark:bg-[#101c22] text-[#0d171c] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary border-gray-200 dark:border-gray-700 resize-none text-sm"
+                                                />
+                                            </m.div>
+                                        )}
+                                    </AnimatePresence>
+
+                                    {errorMsg && (
+                                        <div className="mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 text-sm text-center">
+                                            {errorMsg}
+                                        </div>
+                                    )}
 
                                     {/* Submit Button */}
                                     <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">

@@ -13,13 +13,13 @@ export default async function UnitsPage() {
     }
 
     // Get admin profile with condominium
-    const { data: userProfile } = await supabase
+    const { data: userProfile, error: profileError } = await supabase
         .from('users')
         .select('role, condominium_id')
         .eq('id', user.id)
         .single();
 
-    if (!userProfile || userProfile.role !== 'admin') {
+    if (profileError || !userProfile || (userProfile.role !== 'admin' && userProfile.role !== 'developer')) {
         redirect('/dashboard');
     }
 

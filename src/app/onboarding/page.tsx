@@ -22,7 +22,7 @@ export default function OnboardingPage() {
         }
 
         startTransition(async () => {
-            const result = await linkCondominium(condominiumCode);
+            const result = await linkCondominium(condominiumCode.trim());
             if (result.success) {
                 router.push('/dashboard');
             } else {

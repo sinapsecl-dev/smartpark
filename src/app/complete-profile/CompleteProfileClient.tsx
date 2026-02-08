@@ -4,6 +4,7 @@ import React, { useState, useTransition } from 'react';
 import { m } from 'framer-motion';
 import { User, Phone, Home, ChevronRight, Check, Loader2, Car, Lock, Eye, EyeOff } from 'lucide-react';
 import { completeProfile } from './actions';
+import { registerVehicle } from '@/app/lib/vehicle-actions';
 import { useRouter } from 'next/navigation';
 
 interface CompleteProfileClientProps {
@@ -46,6 +47,28 @@ export default function CompleteProfileClient({
         unitId: preassignedUnitId || '',
     });
     const [showPassword, setShowPassword] = useState(false);
+    const [vehicles, setVehicles] = useState<string[]>([]);
+    const [numVehicles, setNumVehicles] = useState(0);
+
+    const handleNumVehiclesChange = (count: number) => {
+        setNumVehicles(count);
+        setVehicles(prev => {
+            const newArr = [...prev];
+            while (newArr.length < count) newArr.push('');
+            while (newArr.length > count) newArr.pop();
+            return newArr;
+        });
+    };
+
+    const handleVehicleChange = (index: number, value: string) => {
+        const newVehicles = [...vehicles];
+        // Enforce max length 6 and alphanumeric
+        const val = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        if (val.length <= 6) {
+            newVehicles[index] = val;
+            setVehicles(newVehicles);
+        }
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -74,6 +97,21 @@ export default function CompleteProfileClient({
             return;
         }
 
+        // Validate vehicles strictly
+        if (numVehicles > 0) {
+            for (let i = 0; i < numVehicles; i++) {
+                const plate = vehicles[i] || '';
+                if (!plate) {
+                    setError(`Por favor ingresa la patente del vehículo ${i + 1}`);
+                    return;
+                }
+                if (plate.length !== 6) {
+                    setError(`La patente del vehículo ${i + 1} debe tener exactamente 6 caracteres`);
+                    return;
+                }
+            }
+        }
+
         startTransition(async () => {
             const result = await completeProfile({
                 userId,
@@ -86,6 +124,28 @@ export default function CompleteProfileClient({
             });
 
             if (result.success) {
+                // Register vehicles if any
+                if (numVehicles > 0) {
+                    const finalUnitId = formData.unitId || preassignedUnitId!;
+                    const vehicleResults = await Promise.all(
+                        vehicles.slice(0, numVehicles).map(plate =>
+                            registerVehicle({
+                                unitId: finalUnitId,
+                                licensePlate: plate,
+                                isPrimary: false // Logic for primary could be improved (e.g. index 0)
+                            })
+                        )
+                    );
+
+                    const vehicleErrors = vehicleResults
+                        .filter(res => !res.success)
+                        .map(res => res.message || 'Error desconocido');
+
+                    if (vehicleErrors.length > 0) {
+                        setError(`Perfil guardado, pero error en vehículos: ${vehicleErrors.join(', ')}`);
+                        return; // Stay on page to see error. User can try again (will update profile again)
+                    }
+                }
                 router.push('/dashboard');
             } else {
                 setError(result.error || 'Error al completar el perfil');
@@ -279,6 +339,51 @@ export default function CompleteProfileClient({
                                     Arrendatario
                                 </button>
                             </div>
+                        </div>
+
+                        {/* Vehicle Registration (Phase 5) */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                ¿Cuántos vehículos tienes?
+                            </label>
+                            <div className="flex gap-2 mb-3">
+                                {[0, 1, 2, 3].map((num) => (
+                                    <button
+                                        key={num}
+                                        type="button"
+                                        onClick={() => handleNumVehiclesChange(num)}
+                                        className={`flex-1 py-2 rounded-xl font-medium transition-all touch-manipulation border ${numVehicles === num
+                                            ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300'
+                                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400'
+                                            }`}
+                                    >
+                                        {num === 0 ? 'Ninguno' : num}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {numVehicles > 0 && (
+                                <div className="space-y-3 pl-1">
+                                    {vehicles.map((plate, index) => (
+                                        <div key={index} className="relative">
+                                            <Car className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                            <input
+                                                type="text"
+                                                value={plate}
+                                                onChange={(e) => handleVehicleChange(index, e.target.value)}
+                                                placeholder={`Patente Vehículo ${index + 1}`}
+                                                maxLength={6}
+                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 
+                                      bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+                                      focus:ring-2 focus:ring-primary focus:border-transparent font-mono tracking-wider uppercase placeholder:normal-case placeholder:tracking-normal"
+                                            />
+                                        </div>
+                                    ))}
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 px-1">
+                                        Ingresa las patentes sin guiones ni espacios.
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Error Message */}

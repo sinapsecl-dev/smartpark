@@ -1,7 +1,7 @@
 'use server';
 
 import { createServerComponentClient } from '@/lib/supabase/server';
-import { awardXP } from '@/app/actions/gamification';
+// import { awardXP } from '@/app/actions/gamification';
 import { revalidatePath } from 'next/cache';
 
 /**
@@ -34,11 +34,13 @@ export async function performCheckIn(bookingId: string) {
     }
 
     // Fetch booking
-    const { data: booking, error: fetchError } = await supabase
+    const { data: bookingData, error: fetchError } = await supabase
         .from('bookings')
         .select('*')
         .eq('id', bookingId)
         .single();
+
+    const booking = bookingData as any;
 
     if (fetchError || !booking) {
         return { success: false, message: 'Reserva no encontrada.' };
@@ -86,9 +88,9 @@ export async function performCheckIn(bookingId: string) {
     // Let's say "On Time" is arriving before start_time + 15 mins.
     const isOnTime = diffMinutes <= 15;
 
-    if (isOnTime && booking.user_id) {
-        await awardXP(booking.user_id, "CHECK_IN_ON_TIME", bookingId);
-    }
+    // if (isOnTime && booking.user_id) {
+    //     await awardXP(booking.user_id, "CHECK_IN_ON_TIME", bookingId);
+    // }
 
     revalidatePath('/admin/scan'); // Assuming a scan page exists
     revalidatePath('/dashboard');
@@ -118,11 +120,13 @@ export async function performCheckOut(bookingId: string) {
     }
 
     // Fetch booking
-    const { data: booking } = await supabase
+    const { data: bookingData } = await supabase
         .from('bookings')
         .select('*')
         .eq('id', bookingId)
         .single();
+
+    const booking = bookingData as any;
 
     if (!booking) {
         return { success: false, message: 'Reserva no encontrada.' };
@@ -159,10 +163,10 @@ export async function performCheckOut(bookingId: string) {
 
     // Always award completion?
     if (booking.user_id) {
-        await awardXP(booking.user_id, "BOOKING_COMPLETED", bookingId);
+        // await awardXP(booking.user_id, "BOOKING_COMPLETED", bookingId);
 
         if (!isLate) {
-            await awardXP(booking.user_id, "CHECK_OUT_ON_TIME", bookingId);
+            // await awardXP(booking.user_id, "CHECK_OUT_ON_TIME", bookingId);
         }
     }
 

@@ -14,6 +14,7 @@ interface FairPlayRules {
     maxReservationDuration: number;
     cooldownPeriod: number;
     weeklyQuotaHours: number;
+    maxBookingAheadMinutes: number;
 }
 
 export async function updateCondominiumSettings(
@@ -92,6 +93,7 @@ export async function updateFairPlayRules(
                 max_booking_duration_hours: rules.maxReservationDuration,
                 cooldown_period_hours: rules.cooldownPeriod,
                 max_parking_hours_per_week: rules.weeklyQuotaHours,
+                max_booking_ahead_minutes: rules.maxBookingAheadMinutes,
                 updated_at: new Date().toISOString(),
             })
             .eq('id', userProfile.condominium_id);

@@ -137,8 +137,20 @@ export async function getProfile() {
         .select('*')
         .eq('user_id', user.id);
 
+    // Get Unit Vehicles
+    let vehicles: any[] = [];
+    if (profile?.unit_id) {
+        const { data } = await (supabase as any)
+            .from('unit_vehicles')
+            .select('*')
+            .eq('unit_id', profile.unit_id)
+            .order('created_at', { ascending: true });
+        vehicles = data || [];
+    }
+
     return {
         ...profile,
+        vehicles,
         avatar: avatar ? {
             style: avatar.avatar_style,
             seed: avatar.avatar_seed

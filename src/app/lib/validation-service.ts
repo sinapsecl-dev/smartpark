@@ -64,12 +64,12 @@ export class ValidationService {
    */
   static async checkCooldownPeriod(unitId: string, proposedStartTime: Date, excludeBookingId?: string): Promise<boolean> {
     const supabase = await createServerComponentClient(); // Initialize Supabase client
-    let query = (supabase.from('bookings') as any)
+    let query = supabase.from('bookings')
       .select('end_time')
       .eq('unit_id', unitId);
 
     if (excludeBookingId) {
-      query = query.ne('id', excludeBookingId);
+      query = query.neq('id', excludeBookingId);
     }
 
     const { data: lastBooking, error } = await query

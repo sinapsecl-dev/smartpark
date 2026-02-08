@@ -17,8 +17,10 @@ import {
     ChevronRight,
     Home,
     MoreHorizontal,
+    Ban,
 } from 'lucide-react';
 import { createUnit, updateUnit, deleteUnit } from './actions';
+import { SanctionDrawer } from '@/components/admin/SanctionDrawer';
 
 interface AssignedUser {
     id: string;
@@ -61,11 +63,13 @@ const UnitCard = React.memo(({
     unit,
     onEdit,
     onDelete,
+    onSanctions,
     isPending,
 }: {
     unit: Unit;
     onEdit: () => void;
     onDelete: () => void;
+    onSanctions: () => void;
     isPending: boolean;
 }) => {
     const status = STATUS_CONFIG[unit.status];
@@ -129,6 +133,14 @@ const UnitCard = React.memo(({
                                             >
                                                 <Edit2 className="w-4 h-4" />
                                                 Editar
+                                            </button>
+                                            <button
+                                                onClick={() => { onSanctions(); setShowActions(false); }}
+                                                className="w-full px-4 py-3 flex items-center gap-2 text-sm text-orange-600 dark:text-orange-400 
+                                 hover:bg-orange-50 dark:hover:bg-orange-900/20 touch-manipulation"
+                                            >
+                                                <Ban className="w-4 h-4" />
+                                                Sanciones
                                             </button>
                                             <button
                                                 onClick={() => { onDelete(); setShowActions(false); }}
@@ -443,6 +455,7 @@ export default function UnitsPageClient({ initialUnits, condominiumId }: UnitsPa
     const [deletingUnit, setDeletingUnit] = useState<Unit | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [sanctionsUnit, setSanctionsUnit] = useState<Unit | null>(null);
 
     // Filter units
     const filteredUnits = useMemo(() =>
@@ -609,6 +622,7 @@ export default function UnitsPageClient({ initialUnits, condominiumId }: UnitsPa
                                     unit={unit}
                                     onEdit={() => handleOpenEdit(unit)}
                                     onDelete={() => setDeletingUnit(unit)}
+                                    onSanctions={() => setSanctionsUnit(unit)}
                                     isPending={isPending}
                                 />
                             ))
@@ -634,6 +648,14 @@ export default function UnitsPageClient({ initialUnits, condominiumId }: UnitsPa
                 title="¿Eliminar unidad?"
                 message={`Esta acción eliminará "${deletingUnit?.name}" y no se puede deshacer. Los usuarios asignados quedarán sin unidad.`}
                 isPending={isPending}
+            />
+
+            {/* Sanctions Drawer */}
+            <SanctionDrawer
+                isOpen={!!sanctionsUnit}
+                onClose={() => setSanctionsUnit(null)}
+                unitId={sanctionsUnit?.id || ''}
+                unitName={sanctionsUnit?.name || ''}
             />
         </main>
     );

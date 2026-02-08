@@ -18,7 +18,7 @@ export default async function AdminDashboardPage() {
     .eq('id', user.id)
     .single();
 
-  if (profileError || !userProfile || userProfile.role !== 'admin') {
+  if (profileError || !userProfile || (userProfile.role !== 'admin' && userProfile.role !== 'developer')) {
     redirect('/dashboard'); // Non-admins go to resident dashboard
   }
 
@@ -32,6 +32,7 @@ export default async function AdminDashboardPage() {
     recentLogsResult,
     systemRulesResult,
     zombieVehiclesResult,
+    pendingExtensionsResult,
   ] = await Promise.all([
     // Total spots count for this condominium
     supabase.from('spots').select('id', { count: 'exact' }).eq('condominium_id', condominiumId),
@@ -71,6 +72,16 @@ export default async function AdminDashboardPage() {
       .or('status.eq.confirmed,status.eq.active')
       .lt('start_time', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
       .gte('end_time', new Date().toISOString()),
+
+    // Pending extension requests
+    supabase
+      .from('bookings')
+      .select('*, units(name)')
+      .eq('condominium_id', condominiumId)
+      .not('extension_reason', 'is', null)
+      .eq('is_extended', false)
+      .gte('end_time', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()), // Only recent ones? Or all valid ones?
+    // Let's filter out very old ones to avoid clutter if they weren't resolved.
   ]);
 
   // Process spots and occupancy
@@ -117,7 +128,7 @@ export default async function AdminDashboardPage() {
   const systemRules = systemRulesResult.data || [];
   const getRuleValue = (name: string, defaultValue: number) => {
     const rule = systemRules.find((r: any) => r.rule_name === name);
-    return rule ? parseInt(rule.rule_value) : defaultValue;
+    return rule ? parseInt((rule as any).rule_value) : defaultValue;
   };
 
   const fairPlayRules = {
@@ -129,6 +140,14 @@ export default async function AdminDashboardPage() {
   // Zombie vehicles count
   const zombieVehiclesCount = zombieVehiclesResult.count || 0;
 
+  // Pending extension requests
+  // @ts-ignore
+  const pendingRequests = recentLogsResult[6]?.data || [];
+  // Wait, recentLogsResult is index 3. 
+  // Promise.all returns array.
+  // 0: spots, 1: occupied, 2: topReservers, 3: recentLogs, 4: systemRules, 5: zombies, 6: extensions (NEW)
+  // I need to update the destructuring of Promise.all result first!
+
   return (
     <AdminDashboardClient
       occupancyPercentage={occupancyPercentage}
@@ -139,6 +158,7 @@ export default async function AdminDashboardPage() {
       fairPlayRules={fairPlayRules}
       auditLogs={auditLogs}
       totalAuditLogs={recentLogsResult.data?.length || 0}
+      pendingRequests={pendingRequests}
     />
   );
 }

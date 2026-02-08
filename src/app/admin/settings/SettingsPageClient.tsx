@@ -18,6 +18,7 @@ interface SettingsPageClientProps {
         maxReservationDuration: number;
         cooldownPeriod: number;
         weeklyQuotaHours: number;
+        maxBookingAheadMinutes: number;
     };
 }
 
@@ -79,6 +80,7 @@ const NumberInput = React.memo(({
     onChange,
     min = 0,
     max = 100,
+    step = 1,
     unit = '',
     helpText = '',
 }: {
@@ -87,6 +89,7 @@ const NumberInput = React.memo(({
     onChange: (value: number) => void;
     min?: number;
     max?: number;
+    step?: number;
     unit?: string;
     helpText?: string;
 }) => (
@@ -97,7 +100,7 @@ const NumberInput = React.memo(({
         <div className="flex items-center gap-3">
             <button
                 type="button"
-                onClick={() => onChange(Math.max(min, value - 1))}
+                onClick={() => onChange(Math.max(min, value - step))}
                 className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center 
                    text-xl font-bold text-gray-600 dark:text-gray-300 active:bg-gray-200 
                    dark:active:bg-gray-600 transition-colors touch-manipulation select-none"
@@ -115,7 +118,7 @@ const NumberInput = React.memo(({
             </div>
             <button
                 type="button"
-                onClick={() => onChange(Math.min(max, value + 1))}
+                onClick={() => onChange(Math.min(max, value + step))}
                 className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center 
                    text-xl font-bold text-gray-600 dark:text-gray-300 active:bg-gray-200 
                    dark:active:bg-gray-600 transition-colors touch-manipulation select-none"
@@ -217,6 +220,7 @@ export default function SettingsPageClient({ condominium, fairPlayRules }: Setti
         maxReservationDuration: fairPlayRules.maxReservationDuration,
         cooldownPeriod: fairPlayRules.cooldownPeriod,
         weeklyQuotaHours: fairPlayRules.weeklyQuotaHours,
+        maxBookingAheadMinutes: fairPlayRules.maxBookingAheadMinutes,
     });
 
     const handleCopyCode = async () => {
@@ -407,6 +411,17 @@ export default function SettingsPageClient({ condominium, fairPlayRules }: Setti
                                 max={168}
                                 unit="horas"
                                 helpText="Máximo de horas que cada unidad puede usar por semana"
+                            />
+                            <div className="border-t border-gray-100 dark:border-gray-700" />
+                            <NumberInput
+                                label="Anticipación Máxima de Reserva"
+                                value={rulesForm.maxBookingAheadMinutes}
+                                onChange={(v) => setRulesForm({ ...rulesForm, maxBookingAheadMinutes: v })}
+                                min={30}
+                                max={1440}
+                                step={30}
+                                unit="minutos"
+                                helpText="Qué tan adelante en el tiempo pueden reservar los residentes. Ej: 60 min = solo pueden reservar dentro de la próxima hora."
                             />
                             <button
                                 onClick={handleSaveRules}

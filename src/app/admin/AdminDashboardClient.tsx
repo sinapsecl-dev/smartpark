@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { KPICard, TopReserversCard, FairPlayRulesForm, AuditLogsTable } from '@/components/admin';
+import { KPICard, TopReserversCard, FairPlayRulesForm, AuditLogsTable, ExtensionRequestsCard } from '@/components/admin';
 
 interface AdminDashboardClientProps {
     occupancyPercentage: number;
@@ -24,6 +24,7 @@ interface AdminDashboardClientProps {
         gateId?: string;
     }[];
     totalAuditLogs: number;
+    pendingRequests: any[];
 }
 
 const AdminDashboardClient: React.FC<AdminDashboardClientProps> = ({
@@ -35,6 +36,7 @@ const AdminDashboardClient: React.FC<AdminDashboardClientProps> = ({
     fairPlayRules,
     auditLogs,
     totalAuditLogs,
+    pendingRequests = []
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     // Use state for time to avoid hydration mismatch
@@ -84,6 +86,9 @@ const AdminDashboardClient: React.FC<AdminDashboardClientProps> = ({
 
                 {/* Tarjetas KPI */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Extension Requests (High Priority) */}
+                    <ExtensionRequestsCard requests={pendingRequests} />
+
                     {/* Ocupación actual */}
                     <KPICard
                         title="Ocupación Actual"

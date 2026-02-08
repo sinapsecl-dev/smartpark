@@ -31,6 +31,11 @@ const adminLinks: NavLink[] = [
   { href: '/admin/audit-logs', label: 'Auditoría', icon: 'history', description: 'Registro de actividades' },
 ];
 
+const developerLinks: NavLink[] = [
+  ...adminLinks,
+  { href: '/admin/condominiums', label: 'Condominios', icon: 'domain', description: 'Gestión global' },
+];
+
 const residentLinks: NavLink[] = [
   { href: '/dashboard', label: 'Estacionamientos', icon: 'local_parking', description: 'Ver y reservar' },
   { href: '/leaderboard', label: 'Clasificación', icon: 'leaderboard', description: 'Top usuarios y logros' },
@@ -119,7 +124,8 @@ const NavLinks: React.FC<NavLinksProps> = ({ userRole, userHouseNumber, userEmai
   const pathname = usePathname();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const links = userRole === 'admin' ? adminLinks : residentLinks;
+  const isPrivileged = userRole === 'admin' || userRole === 'developer';
+  const links = userRole === 'developer' ? developerLinks : (userRole === 'admin' ? adminLinks : residentLinks);
   const supabase = createClientComponentClient();
 
   // Close menu on route change
@@ -217,12 +223,12 @@ const NavLinks: React.FC<NavLinksProps> = ({ userRole, userHouseNumber, userEmai
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                     <span className="material-symbols-outlined text-primary text-[20px]">
-                      {userRole === 'admin' ? 'admin_panel_settings' : 'home'}
+                      {userRole === 'admin' || userRole === 'developer' ? (userRole === 'developer' ? 'code' : 'admin_panel_settings') : 'home'}
                     </span>
                   </div>
                   <div className="min-w-0">
                     <p className="font-bold text-sm text-gray-800 dark:text-white truncate">
-                      {userRole === 'admin' ? 'Administrador' : userHouseNumber || 'Residente'}
+                      {userRole === 'admin' ? 'Administrador' : (userRole === 'developer' ? 'Developer' : userHouseNumber || 'Residente')}
                     </p>
                     <p className="text-xs text-gray-500 truncate">{userEmail}</p>
                   </div>
@@ -250,6 +256,19 @@ const NavLinks: React.FC<NavLinksProps> = ({ userRole, userHouseNumber, userEmai
                       index={index}
                     />
                   ))}
+
+                  {/* Explicit Notifications Link for Mobile */}
+                  <MobileMenuItem
+                    link={{
+                      href: '/notifications',
+                      label: 'Notificaciones',
+                      icon: 'notifications',
+                      description: 'Centro de notificaciones'
+                    }}
+                    isActive={pathname === '/notifications'}
+                    onClick={closeMenu}
+                    index={links.length}
+                  />
                 </div>
               </div>
 

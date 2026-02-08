@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateProfile, updateAvatar } from '@/app/actions/profile';
+import { registerVehicle, removeVehicle } from '@/app/lib/vehicle-actions';
 import { UserAvatar } from '@/components/gamification/UserAvatar';
 import { AvatarStyleSelector } from '@/components/gamification/AvatarStyleSelector';
 import { XPProgressBar } from '@/components/XPProgressBar';
@@ -11,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { m } from 'framer-motion';
-import { User, Phone, Palette, Save, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { User, Phone, Palette, Save, ArrowLeft, CheckCircle2, AlertCircle, Car, Trash2, Plus } from 'lucide-react';
 import clsx from 'clsx';
 import { AchievementDefinition, UserAchievement } from '@/types/gamification';
 
@@ -31,6 +32,7 @@ interface ProfilePageClientProps {
             definitions: AchievementDefinition[];
             userAchievements: UserAchievement[];
         };
+        vehicles?: { id: string; license_plate: string; is_primary: boolean }[];
     };
 }
 
@@ -47,6 +49,11 @@ export default function ProfilePageClient({ profile }: ProfilePageClientProps) {
     const [avatarStyle, setAvatarStyle] = useState(profile.avatar.style);
     const [avatarSeed, setAvatarSeed] = useState(profile.avatar.seed);
     const [showAvatarSelector, setShowAvatarSelector] = useState(false);
+
+    // Vehicle state
+    const [vehicles, setVehicles] = useState<{ id: string; license_plate: string; is_primary: boolean }[]>(profile.vehicles || []);
+    const [newPlate, setNewPlate] = useState('');
+    const [isVehicleLoading, setIsVehicleLoading] = useState(false);
 
     // Gamification state (real-time)
     const [xpStats, setXpStats] = useState({
@@ -106,6 +113,57 @@ export default function ProfilePageClient({ profile }: ProfilePageClientProps) {
         const result = await updateAvatar(style, seed);
         if (result.success) {
             setMessage({ type: 'success', text: 'Avatar actualizado.' });
+        }
+        if (result.success) {
+            setMessage({ type: 'success', text: 'Avatar actualizado.' });
+        }
+    };
+
+    const handleAddVehicle = async () => {
+        if (!newPlate.trim()) return;
+        if (!profile.unit_id) {
+            setMessage({ type: 'error', text: 'No tienes una unidad asignada.' });
+            return;
+        }
+
+        setIsVehicleLoading(true);
+        try {
+            const result = await registerVehicle({
+                unitId: profile.unit_id,
+                licensePlate: newPlate.toUpperCase().replace(/[^A-Z0-9]/g, ''),
+                isPrimary: vehicles.length === 0
+            });
+
+            if (result.success && result.vehicle) {
+                setVehicles([...vehicles, result.vehicle as any]);
+                setNewPlate('');
+                setMessage({ type: 'success', text: 'Vehículo registrado exitosamente.' });
+            } else {
+                setMessage({ type: 'error', text: result.message || 'Error al registrar vehículo.' });
+            }
+        } catch (err) {
+            setMessage({ type: 'error', text: 'Error al procesar solicitud.' });
+        } finally {
+            setIsVehicleLoading(false);
+        }
+    };
+
+    const handleRemoveVehicle = async (vehicleId: string) => {
+        if (!confirm('¿Estás seguro de eliminar este vehículo?')) return;
+
+        setIsVehicleLoading(true);
+        try {
+            const result = await removeVehicle(vehicleId);
+            if (result.success) {
+                setVehicles(vehicles.filter(v => v.id !== vehicleId));
+                setMessage({ type: 'success', text: 'Vehículo eliminado.' });
+            } else {
+                setMessage({ type: 'error', text: result.message || 'Error al eliminar vehículo.' });
+            }
+        } catch (err) {
+            setMessage({ type: 'error', text: 'Error al procesar solicitud.' });
+        } finally {
+            setIsVehicleLoading(false);
         }
     };
 
@@ -333,6 +391,87 @@ export default function ProfilePageClient({ profile }: ProfilePageClientProps) {
                         </Button>
                     </div>
                 </m.form>
+
+                {/* Vehicles Section (Phase 5) */}
+                <m.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                    className="bg-white dark:bg-[#1e2a32] rounded-2xl p-6 shadow-sm mt-6"
+                >
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                            <Car className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                        </div>
+                        <div>
+                            <h2 className="font-semibold text-[#0d171c] dark:text-white">Mis Vehículos</h2>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                Gestiona tus patentes ({vehicles.length}/3)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        {vehicles.map((vehicle) => (
+                            <div key={vehicle.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                                <div className="flex items-center gap-3">
+                                    <div className="min-w-[80px] h-10 px-2 rounded-lg bg-white dark:bg-gray-700 flex items-center justify-center font-mono font-bold text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600">
+                                        {vehicle.license_plate}
+                                    </div>
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                                        {vehicle.is_primary ? 'Principal' : 'Vehículo'}
+                                    </span>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleRemoveVehicle(vehicle.id)}
+                                    disabled={isVehicleLoading}
+                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
+                            </div>
+                        ))}
+
+                        {vehicles.length === 0 && (
+                            <p className="text-center text-gray-400 text-sm py-2">
+                                No tienes vehículos registrados.
+                            </p>
+                        )}
+
+                        {vehicles.length < 3 && (
+                            <div className="flex gap-2 pt-2">
+                                <Input
+                                    value={newPlate}
+                                    onChange={(e) => {
+                                        const val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                                        if (val.length <= 6) setNewPlate(val);
+                                    }}
+                                    placeholder="ABCD12"
+                                    maxLength={6}
+                                    className="uppercase font-mono tracking-widest"
+                                />
+                                <Button
+                                    type="button"
+                                    onClick={handleAddVehicle}
+                                    disabled={newPlate.length !== 6 || isVehicleLoading}
+                                    className="gap-2 bg-orange-500 hover:bg-orange-600 text-white"
+                                >
+                                    {isVehicleLoading ? <span className="animate-spin">⏳</span> : <Plus className="w-4 h-4" />}
+                                    Registrar
+                                </Button>
+                            </div>
+                        )}
+
+                        {vehicles.length >= 3 && (
+                            <div className="text-xs text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 p-2 rounded-lg text-center">
+                                Has alcanzado el límite de vehículos permitidos.
+                            </div>
+                        )}
+                    </div>
+                </m.div>
             </div>
         </div>
     );

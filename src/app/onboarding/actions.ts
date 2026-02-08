@@ -1,6 +1,7 @@
 'use server';
 
 import { createServerComponentClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function linkCondominium(
@@ -8,17 +9,23 @@ export async function linkCondominium(
 ): Promise<{ success: boolean; error?: string }> {
     try {
         const supabase = await createServerComponentClient();
+        const adminClient = createAdminClient();
+
+        if (!adminClient) {
+            console.error('Admin client not available');
+            return { success: false, error: 'Error de configuración del servidor' };
+        }
 
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
             return { success: false, error: 'No autorizado' };
         }
 
-        // Find condominium by unique code
-        const { data: condominium, error: condoError } = await supabase
+        // Find condominium by unique code using Admin Client to bypass RLS
+        const { data: condominium, error: condoError } = await adminClient
             .from('condominiums')
             .select('id')
-            .eq('unique_code', condominiumCode.toUpperCase())
+            .eq('unique_code', condominiumCode.trim().toUpperCase())
             .single();
 
         if (condoError || !condominium) {
@@ -28,7 +35,7 @@ export async function linkCondominium(
         // Check if user is already linked to a condominium
         const { data: existingProfile } = await supabase
             .from('users')
-            .select('condominium_id')
+            .select('condominium_id, role')
             .eq('id', user.id)
             .single();
 
@@ -46,7 +53,7 @@ export async function linkCondominium(
                 id: user.id,
                 email: user.email!,
                 condominium_id: condominium.id,
-                role: 'resident',
+                role: existingProfile?.role || 'resident',
                 // This implies Code = Approval.
                 // So I should probably set status = 'active' if code is valid.
                 status: 'active',

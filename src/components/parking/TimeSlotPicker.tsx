@@ -228,7 +228,7 @@ const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({
                         <p className="text-sm">No hay horarios disponibles hoy</p>
                     </m.div>
                 ) : (
-                    <div className="flex flex-col gap-2 max-h-[280px] overflow-y-auto pr-1 custom-scrollbar">
+                    <div className="flex flex-col gap-2 pr-1">
                         {displaySlots.map((slot, index) => {
                             const isSelected = !!(selectedSlot &&
                                 slot.type === 'free' &&

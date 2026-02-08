@@ -100,7 +100,7 @@ export async function createUser(formData: FormData) {
             },
             // Redirect to auth/callback first - it will exchange the token and redirect to complete-profile
             redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
-        });
+        } as any);
 
         if (error) {
             console.error('Error inviting user:', error);
@@ -159,12 +159,14 @@ export async function approveRegistration(
         }
 
         // Get the registration
-        const { data: registration } = await supabase
+        const { data: registrationData } = await supabase
             .from('pending_registrations')
             .select('*')
             .eq('id', registrationId)
             .eq('condominium_id', adminProfile.condominium_id)
             .single();
+
+        const registration = registrationData as any;
 
         if (!registration) {
             return { success: false, error: 'Registro no encontrado' };
@@ -183,7 +185,7 @@ export async function approveRegistration(
                         approved_by: user.id,
                     },
                     redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
-                });
+                } as any);
 
                 if (!inviteError) {
                     invitationSent = true;
@@ -304,11 +306,13 @@ export async function updateUserStatus(
         }
 
         // Verify target user belongs to this condominium and get their info
-        const { data: targetUser } = await supabase
+        const { data: targetUserData } = await supabase
             .from('users')
             .select('id, email, full_name, condominium_id, unit_id, units(name)')
             .eq('id', userId)
             .single();
+
+        const targetUser = targetUserData as any;
 
         if (!targetUser || targetUser.condominium_id !== adminProfile.condominium_id) {
             return { success: false, error: 'Usuario no encontrado' };
